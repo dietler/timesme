@@ -54,7 +54,45 @@
                     <div class="final-score-value" id="final-score">0</div>
                     <div class="final-score-max">out of 20</div>
                 </div>
-                <button class="play-again-btn" id="play-again-btn">Play Again! 🎮</button>
+                <div class="results-buttons">
+                    <button class="review-btn" id="review-btn">Review Answers 📝</button>
+                    <button class="stats-btn" id="stats-btn">View Statistics 📊</button>
+                    <button class="play-again-btn" id="play-again-btn">Play Again! 🎮</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Review screen (hidden initially) -->
+        <div class="review-screen" id="review-screen">
+            <div class="review-content">
+                <h2 class="review-title">Answer Review 📝</h2>
+                <div class="review-list" id="review-list"></div>
+                <button class="back-btn" id="back-from-review-btn">Back to Results</button>
+            </div>
+        </div>
+
+        <!-- Statistics screen (hidden initially) -->
+        <div class="stats-screen" id="stats-screen">
+            <div class="stats-content">
+                <h2 class="stats-title">Your Statistics 📊</h2>
+                <div class="stats-sections">
+                    <div class="stats-section">
+                        <h3>Most Missed Problems ❌</h3>
+                        <div class="stats-list" id="missed-stats"></div>
+                    </div>
+                    <div class="stats-section">
+                        <h3>Best Performance ✅</h3>
+                        <div class="stats-list" id="correct-stats"></div>
+                    </div>
+                    <div class="stats-section">
+                        <h3>Overall Stats</h3>
+                        <div class="overall-stats" id="overall-stats"></div>
+                    </div>
+                </div>
+                <div class="stats-buttons">
+                    <button class="clear-stats-btn" id="clear-stats-btn">Clear All Stats 🗑️</button>
+                    <button class="back-btn" id="back-from-stats-btn">Back to Results</button>
+                </div>
             </div>
         </div>
 
