@@ -27,6 +27,9 @@ class MathGame {
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
         
+        // Initialize audio context for sound effects
+        this.audioContext = null;
+        
         this.init();
     }
     
@@ -48,6 +51,71 @@ class MathGame {
         
         // Display first question
         this.displayQuestion();
+    }
+    
+    // Initialize audio context (called on first user interaction)
+    initAudioContext() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+    
+    // Play correct answer sound effect
+    playCorrectSound() {
+        this.initAudioContext();
+        const ctx = this.audioContext;
+        
+        // Musical note frequencies
+        const NOTE_C5 = 523.25;
+        const NOTE_E5 = 659.25;
+        const NOTE_G5 = 783.99;
+        
+        // Create a cheerful ascending tone with three separate notes
+        const notes = [
+            { freq: NOTE_C5, start: 0, duration: 0.1 },
+            { freq: NOTE_E5, start: 0.1, duration: 0.1 },
+            { freq: NOTE_G5, start: 0.2, duration: 0.15 }
+        ];
+        
+        notes.forEach(note => {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            oscillator.frequency.setValueAtTime(note.freq, ctx.currentTime + note.start);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime + note.start);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.start + note.duration);
+            
+            oscillator.start(ctx.currentTime + note.start);
+            oscillator.stop(ctx.currentTime + note.start + note.duration);
+        });
+    }
+    
+    // Play wrong answer sound effect
+    playWrongSound() {
+        this.initAudioContext();
+        const ctx = this.audioContext;
+        
+        // Create a descending "wrong" tone
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.frequency.setValueAtTime(400, ctx.currentTime); // Start higher
+        oscillator.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.3); // Drop down
+        
+        oscillator.type = 'sawtooth';
+        gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.3);
     }
     
     generateQuestions() {
@@ -173,12 +241,14 @@ class MathGame {
             this.score++;
             selectedCircle.classList.add('correct');
             this.showFeedback('🎉', 'correct');
+            this.playCorrectSound();
             this.updateScore();
             this.createConfetti();
         } else {
             // Wrong answer
             selectedCircle.classList.add('wrong');
             this.showFeedback('😕', 'wrong');
+            this.playWrongSound();
             
             // Highlight the correct answer
             this.answerCircles.forEach(circle => {
