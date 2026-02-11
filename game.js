@@ -65,11 +65,16 @@ class MathGame {
         this.initAudioContext();
         const ctx = this.audioContext;
         
+        // Musical note frequencies
+        const NOTE_C5 = 523.25;
+        const NOTE_E5 = 659.25;
+        const NOTE_G5 = 783.99;
+        
         // Create a cheerful ascending tone with three separate notes
         const notes = [
-            { freq: 523.25, start: 0, duration: 0.1 },      // C5
-            { freq: 659.25, start: 0.1, duration: 0.1 },    // E5
-            { freq: 783.99, start: 0.2, duration: 0.15 }    // G5
+            { freq: NOTE_C5, start: 0, duration: 0.1 },
+            { freq: NOTE_E5, start: 0.1, duration: 0.1 },
+            { freq: NOTE_G5, start: 0.2, duration: 0.15 }
         ];
         
         notes.forEach(note => {
