@@ -27,6 +27,9 @@ class MathGame {
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
         
+        // Initialize audio context for sound effects
+        this.audioContext = null;
+        
         this.init();
     }
     
@@ -48,6 +51,60 @@ class MathGame {
         
         // Display first question
         this.displayQuestion();
+    }
+    
+    // Initialize audio context (called on first user interaction)
+    initAudioContext() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+    
+    // Play correct answer sound effect
+    playCorrectSound() {
+        this.initAudioContext();
+        const ctx = this.audioContext;
+        
+        // Create a cheerful ascending tone
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+        
+        oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.3);
+    }
+    
+    // Play wrong answer sound effect
+    playWrongSound() {
+        this.initAudioContext();
+        const ctx = this.audioContext;
+        
+        // Create a descending "wrong" tone
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.frequency.setValueAtTime(400, ctx.currentTime); // Start higher
+        oscillator.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.3); // Drop down
+        
+        oscillator.type = 'sawtooth';
+        gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.3);
     }
     
     generateQuestions() {
@@ -173,12 +230,14 @@ class MathGame {
             this.score++;
             selectedCircle.classList.add('correct');
             this.showFeedback('🎉', 'correct');
+            this.playCorrectSound();
             this.updateScore();
             this.createConfetti();
         } else {
             // Wrong answer
             selectedCircle.classList.add('wrong');
             this.showFeedback('😕', 'wrong');
+            this.playWrongSound();
             
             // Highlight the correct answer
             this.answerCircles.forEach(circle => {
