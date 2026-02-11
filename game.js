@@ -48,9 +48,11 @@ class MathGame {
             
             let question, answer;
             if (isDivision) {
-                answer = baseNumber;
+                // For division: dividend ÷ baseNumber = multiplier
+                // This tests knowing that baseNumber × multiplier = dividend
+                answer = multiplier;
                 const dividend = baseNumber * multiplier;
-                question = `${dividend} ÷ ${multiplier} = ?`;
+                question = `${dividend} ÷ ${baseNumber} = ?`;
             } else {
                 answer = baseNumber * multiplier;
                 question = `${baseNumber} × ${multiplier} = ?`;
