@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Math Master! 🎯</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header with score and progress -->
+        <div class="header">
+            <div class="score-container">
+                <div class="score-label">Score</div>
+                <div class="score" id="score">0</div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-label">Question</div>
+                <div class="progress" id="progress">1/20</div>
+            </div>
+        </div>
+
+        <!-- Main question area -->
+        <div class="question-area">
+            <div class="question-card">
+                <div class="question" id="question">7 × 8 = ?</div>
+            </div>
+        </div>
+
+        <!-- Answer circles -->
+        <div class="answers-container">
+            <div class="answer-circle" data-answer="0">
+                <span class="answer-text">42</span>
+            </div>
+            <div class="answer-circle" data-answer="1">
+                <span class="answer-text">56</span>
+            </div>
+            <div class="answer-circle" data-answer="2">
+                <span class="answer-text">48</span>
+            </div>
+            <div class="answer-circle" data-answer="3">
+                <span class="answer-text">63</span>
+            </div>
+        </div>
+
+        <!-- Results screen (hidden initially) -->
+        <div class="results-screen" id="results-screen">
+            <div class="results-content">
+                <h1 class="results-title">🎉 Amazing! 🎉</h1>
+                <div class="final-score">
+                    <div class="final-score-label">Your Score</div>
+                    <div class="final-score-value" id="final-score">0</div>
+                    <div class="final-score-max">out of 20</div>
+                </div>
+                <div class="results-buttons">
+                    <button class="review-btn" id="review-btn">Review Answers 📝</button>
+                    <button class="stats-btn" id="stats-btn">View Statistics 📊</button>
+                    <button class="play-again-btn" id="play-again-btn">Play Again! 🎮</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Review screen (hidden initially) -->
+        <div class="review-screen" id="review-screen">
+            <div class="review-content">
+                <h2 class="review-title">Answer Review 📝</h2>
+                <div class="review-list" id="review-list"></div>
+                <button class="back-btn" id="back-from-review-btn">Back to Results</button>
+            </div>
+        </div>
+
+        <!-- Statistics screen (hidden initially) -->
+        <div class="stats-screen" id="stats-screen">
+            <div class="stats-content">
+                <h2 class="stats-title">Your Statistics 📊</h2>
+                <div class="stats-sections">
+                    <div class="stats-section">
+                        <h3>Most Missed Problems ❌</h3>
+                        <div class="stats-list" id="missed-stats"></div>
+                    </div>
+                    <div class="stats-section">
+                        <h3>Best Performance ✅</h3>
+                        <div class="stats-list" id="correct-stats"></div>
+                    </div>
+                    <div class="stats-section">
+                        <h3>Overall Stats</h3>
+                        <div class="overall-stats" id="overall-stats"></div>
+                    </div>
+                </div>
+                <div class="stats-buttons">
+                    <button class="clear-stats-btn" id="clear-stats-btn">Clear All Stats 🗑️</button>
+                    <button class="back-btn" id="back-from-stats-btn">Back to Results</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback overlay -->
+        <div class="feedback-overlay" id="feedback-overlay"></div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
