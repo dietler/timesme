@@ -46,6 +46,77 @@ body::after {
     }
 }
 
+/* Floating squishmallows */
+.squishmallow {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+    animation: floatSquishy 6s ease-in-out infinite;
+}
+
+@keyframes floatSquishy {
+    0%, 100% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-30px) translateX(10px) rotate(90deg);
+    }
+    50% {
+        transform: translateY(-60px) translateX(-10px) rotate(180deg);
+    }
+    75% {
+        transform: translateY(-30px) translateX(10px) rotate(270deg);
+    }
+}
+
+.squishmallow-1 {
+    top: 15%;
+    left: 10%;
+    animation-duration: 7s;
+    animation-delay: 0s;
+}
+
+.squishmallow-2 {
+    top: 70%;
+    left: 5%;
+    animation-duration: 8s;
+    animation-delay: 1s;
+    font-size: 35px;
+}
+
+.squishmallow-3 {
+    top: 30%;
+    right: 8%;
+    animation-duration: 6s;
+    animation-delay: 2s;
+    font-size: 45px;
+}
+
+.squishmallow-4 {
+    top: 85%;
+    right: 15%;
+    animation-duration: 7.5s;
+    animation-delay: 0.5s;
+}
+
+.squishmallow-5 {
+    top: 50%;
+    left: 3%;
+    animation-duration: 8.5s;
+    animation-delay: 1.5s;
+    font-size: 38px;
+}
+
+.squishmallow-6 {
+    top: 60%;
+    right: 5%;
+    animation-duration: 7s;
+    animation-delay: 2.5s;
+    font-size: 42px;
+}
+
 .game-container {
     width: 100vw;
     height: 100vh;
