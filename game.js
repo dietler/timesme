@@ -65,23 +65,29 @@ class MathGame {
         this.initAudioContext();
         const ctx = this.audioContext;
         
-        // Create a cheerful ascending tone
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
+        // Create a cheerful ascending tone with three separate notes
+        const notes = [
+            { freq: 523.25, start: 0, duration: 0.1 },      // C5
+            { freq: 659.25, start: 0.1, duration: 0.1 },    // E5
+            { freq: 783.99, start: 0.2, duration: 0.15 }    // G5
+        ];
         
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        
-        oscillator.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-        oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
-        oscillator.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
-        
-        oscillator.type = 'sine';
-        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        
-        oscillator.start(ctx.currentTime);
-        oscillator.stop(ctx.currentTime + 0.3);
+        notes.forEach(note => {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            oscillator.frequency.setValueAtTime(note.freq, ctx.currentTime + note.start);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime + note.start);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.start + note.duration);
+            
+            oscillator.start(ctx.currentTime + note.start);
+            oscillator.stop(ctx.currentTime + note.start + note.duration);
+        });
     }
     
     // Play wrong answer sound effect
