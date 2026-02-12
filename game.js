@@ -11,6 +11,10 @@ class MathGame {
         this.nextAnimationTrigger = this.getRandomAnimationTrigger(); // When to show next animation
         this.statsOpenedFromGame = false; // Track where stats was opened from
         
+        // Button text constants
+        this.STATS_BTN_GAME_TEXT = 'Back to Game 🎮';
+        this.STATS_BTN_RESULTS_TEXT = 'Back to Results';
+        
         // DOM elements
         this.scoreElement = document.getElementById('score');
         this.progressElement = document.getElementById('progress');
@@ -225,7 +229,7 @@ class MathGame {
     }
     
     getRandomAnimationTrigger() {
-        // Random number between 3 and 8 inclusive (6 possible values)
+        // Random integer between 3 and 8 inclusive (produces 3, 4, 5, 6, 7, or 8)
         return Math.floor(Math.random() * 6) + 3;
     }
     
@@ -715,7 +719,7 @@ class MathGame {
         this.showStats();
         
         // Update button text
-        this.backFromStatsBtn.textContent = 'Back to Game 🎮';
+        this.backFromStatsBtn.textContent = this.STATS_BTN_GAME_TEXT;
     }
     
     hideStats() {
@@ -723,7 +727,7 @@ class MathGame {
         
         // Reset button text and flag
         if (this.statsOpenedFromGame) {
-            this.backFromStatsBtn.textContent = 'Back to Results';
+            this.backFromStatsBtn.textContent = this.STATS_BTN_RESULTS_TEXT;
             this.statsOpenedFromGame = false;
         }
     }
@@ -819,8 +823,8 @@ class StatisticsManager {
             date: new Date(timestamp).toLocaleDateString()
         });
         
-        // Keep only last 20 games
-        if (this.scores.length >= 20) {
+        // Keep array at maximum of 20 games
+        if (this.scores.length > 20) {
             this.scores = this.scores.slice(-20);
         }
         
