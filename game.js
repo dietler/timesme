@@ -912,7 +912,7 @@ class MathGame {
                     <div class="store-item-price">${item.price} 🪙</div>
                     ${owned
                         ? '<div class="store-item-owned">Owned ✓</div>'
-                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!" aria-label="' + (isSecret ? 'Secret Item' : item.name) + ' - Not enough coins"' : ''}>${canAfford ? 'Buy' : '🔒'}</button>`
+                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!"' : ''} aria-label="${canAfford ? 'Buy ' : ''} ${(isSecret ? 'Secret Item' : item.name)}${!canAfford ? ' - Not enough coins' : ''}">${canAfford ? 'Buy' : '🔒'}</button>`
                     }
                 `;
                 
@@ -1060,11 +1060,11 @@ class StoreManager {
             { id: 'satellite', emoji: '🛰️', name: 'Space Station', price: 750, tier: 'unreal' },
             { id: 'cosmos', emoji: '🌌', name: 'Cosmos Lord', price: 800, tier: 'unreal' },
             // Secret (1000+ coins)
-            { id: 'secret1', emoji: '🎯', name: 'Precision Master', price: 1000, tier: 'secret' },
-            { id: 'secret2', emoji: '💯', name: 'Perfect Score', price: 1200, tier: 'secret' },
-            { id: 'secret3', emoji: '🌟', name: 'Ultimate Star', price: 1500, tier: 'secret' },
-            { id: 'secret4', emoji: '👁️', name: 'All Seeing Eye', price: 2000, tier: 'secret' },
-            { id: 'secret5', emoji: '🎨', name: 'Master Artist', price: 2500, tier: 'secret' },
+            { id: 'precision_master', emoji: '🎯', name: 'Precision Master', price: 1000, tier: 'secret' },
+            { id: 'perfect_score', emoji: '💯', name: 'Perfect Score', price: 1200, tier: 'secret' },
+            { id: 'ultimate_star', emoji: '🌟', name: 'Ultimate Star', price: 1500, tier: 'secret' },
+            { id: 'all_seeing_eye', emoji: '👁️', name: 'All Seeing Eye', price: 2000, tier: 'secret' },
+            { id: 'master_artist', emoji: '🎨', name: 'Master Artist', price: 2500, tier: 'secret' },
         ];
     }
 
