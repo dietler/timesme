@@ -42,6 +42,7 @@
             <button class="header-btn header-store-btn" id="header-store-btn" title="Open Store">🏪</button>
             <button class="header-btn header-collection-btn" id="header-collection-btn" title="Trophy Case">🏆 <span class="collection-count" id="header-collection-count">0</span></button>
             <button class="header-btn header-stats-btn" id="header-stats-btn" title="View Statistics">📊</button>
+            <button class="header-btn header-whiteboard-btn" id="header-whiteboard-btn" title="Open Whiteboard">🖍️</button>
             <div class="progress-container">
                 <div class="progress-label">Question</div>
                 <div class="progress" id="progress">1/20</div>
@@ -289,6 +290,28 @@
                 <div class="collection-progress" id="collection-progress">0/40 collected</div>
                 <div class="collection-grid" id="collection-grid"></div>
                 <button class="back-btn" id="back-from-collection-btn">Back</button>
+            </div>
+        </div>
+
+        <!-- Whiteboard overlay (hidden initially) -->
+        <div class="whiteboard-overlay" id="whiteboard-overlay">
+            <div class="whiteboard-container">
+                <div class="whiteboard-header">
+                    <div class="whiteboard-problem-display">
+                        <div class="whiteboard-question" id="whiteboard-question">7 × 8 = ?</div>
+                        <div class="whiteboard-answers" id="whiteboard-answers">
+                            <span class="whiteboard-answer">42</span>
+                            <span class="whiteboard-answer">56</span>
+                            <span class="whiteboard-answer">48</span>
+                            <span class="whiteboard-answer">63</span>
+                        </div>
+                    </div>
+                    <div class="whiteboard-controls">
+                        <button class="whiteboard-btn whiteboard-eraser-btn" id="whiteboard-eraser-btn" title="Clear Whiteboard">🗑️ Erase</button>
+                        <button class="whiteboard-btn whiteboard-close-btn" id="whiteboard-close-btn" title="Close Whiteboard">✖️</button>
+                    </div>
+                </div>
+                <canvas id="whiteboard-canvas" class="whiteboard-canvas"></canvas>
             </div>
         </div>
 

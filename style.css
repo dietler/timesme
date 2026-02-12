@@ -2127,3 +2127,128 @@ body::after {
     color: #666;
     font-weight: bold;
 }
+
+/* Whiteboard Overlay */
+.whiteboard-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 200;
+    animation: fadeIn 0.3s ease;
+}
+
+.whiteboard-overlay.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.whiteboard-container {
+    width: 95vw;
+    height: 95vh;
+    max-width: 1200px;
+    max-height: 900px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.whiteboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.whiteboard-problem-display {
+    flex: 1;
+    min-width: 200px;
+}
+
+.whiteboard-question {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.whiteboard-answers {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.whiteboard-answer {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 8px 15px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    backdrop-filter: blur(10px);
+}
+
+.whiteboard-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.whiteboard-btn {
+    background: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #764ba2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.whiteboard-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.whiteboard-btn:active {
+    transform: translateY(0);
+}
+
+.whiteboard-canvas {
+    flex: 1;
+    background: white;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
