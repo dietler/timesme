@@ -438,19 +438,23 @@ body::after {
 }
 
 .answer-circle:nth-child(1) {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    /* Duck - warm yellow/orange */
+    background: linear-gradient(135deg, #ffe566 0%, #ffcc33 50%, #ffa726 100%);
 }
 
 .answer-circle:nth-child(2) {
-    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    /* Frog - fresh green */
+    background: linear-gradient(135deg, #a8eea8 0%, #5dbb63 50%, #43a047 100%);
 }
 
 .answer-circle:nth-child(3) {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    /* Bear - warm brown */
+    background: linear-gradient(135deg, #e8cbb0 0%, #d4956b 50%, #c08050 100%);
 }
 
 .answer-circle:nth-child(4) {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    /* Cat - soft pink */
+    background: linear-gradient(135deg, #ffcce0 0%, #ffb8d0 50%, #ff9ebc 100%);
 }
 
 .answer-circle:hover {
@@ -474,86 +478,269 @@ body::after {
 /* Character Faces */
 .character-face {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: -25%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
     pointer-events: none;
+    z-index: 1;
 }
 
-.ears {
-    position: absolute;
+.character-svg {
     width: 100%;
     height: 100%;
+    overflow: visible;
 }
 
-.ear {
-    position: absolute;
-    font-size: 20px;
-    filter: brightness(0.9);
+/* Duck idle animation */
+.face-duck {
+    animation: duckBob 2s ease-in-out infinite;
 }
 
-.ear-left {
-    top: -5px;
-    left: 5%;
+@keyframes duckBob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-3px) rotate(-2deg); }
+    75% { transform: translateY(-3px) rotate(2deg); }
 }
 
-.ear-right {
-    top: -5px;
-    right: 5%;
+.duck-wing-left {
+    animation: duckWingLeft 1.5s ease-in-out infinite;
+    transform-origin: 18px 80px;
 }
 
-.face-bear .ear {
-    font-size: 25px;
+.duck-wing-right {
+    animation: duckWingRight 1.5s ease-in-out infinite;
+    transform-origin: 102px 80px;
 }
 
-.face-cat .ear {
-    font-size: 18px;
-    top: -8px;
+@keyframes duckWingLeft {
+    0%, 100% { transform: rotate(-30deg); }
+    50% { transform: rotate(-45deg); }
 }
 
-.face-cat .ear-left {
-    left: 10%;
+@keyframes duckWingRight {
+    0%, 100% { transform: rotate(30deg); }
+    50% { transform: rotate(45deg); }
 }
 
-.face-cat .ear-right {
-    right: 10%;
+.duck-tuft {
+    animation: tuftBounce 2s ease-in-out infinite;
 }
 
-.face-bunny .ear {
-    font-size: 22px;
-    top: -10px;
+@keyframes tuftBounce {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.15); }
 }
 
-.face-bunny .ear-left {
-    left: 15%;
+.duck-cheek {
+    animation: cheekPulse 3s ease-in-out infinite;
 }
 
-.face-bunny .ear-right {
-    right: 15%;
+@keyframes cheekPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.7; }
 }
 
-.face-frog .eyes {
-    position: absolute;
-    top: -10px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 40%;
+/* Frog idle animation */
+.face-frog {
+    animation: frogBreathe 2.5s ease-in-out infinite;
 }
 
-.face-frog .eye {
-    font-size: 20px;
-    animation: blink 3s ease-in-out infinite;
+@keyframes frogBreathe {
+    0%, 100% { transform: scaleY(1) scaleX(1); }
+    50% { transform: scaleY(1.03) scaleX(0.98); }
 }
 
-@keyframes blink {
-    0%, 48%, 52%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.3;
-    }
+.frog-pupil {
+    animation: frogLook 4s ease-in-out infinite;
+}
+
+@keyframes frogLook {
+    0%, 40%, 60%, 100% { transform: translateX(0); }
+    45%, 55% { transform: translateX(3px); }
+}
+
+.frog-cheek {
+    animation: cheekPulse 3s ease-in-out infinite 0.5s;
+}
+
+.frog-mouth {
+    animation: frogSmile 4s ease-in-out infinite;
+}
+
+@keyframes frogSmile {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.1); }
+}
+
+.frog-foot-left {
+    animation: frogFootLeft 3s ease-in-out infinite;
+}
+
+.frog-foot-right {
+    animation: frogFootRight 3s ease-in-out infinite 0.3s;
+}
+
+@keyframes frogFootLeft {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-2px) rotate(-5deg); }
+}
+
+@keyframes frogFootRight {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-2px) rotate(5deg); }
+}
+
+/* Bear idle animation */
+.face-bear {
+    animation: bearSway 3s ease-in-out infinite;
+}
+
+@keyframes bearSway {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-2deg); }
+    75% { transform: rotate(2deg); }
+}
+
+.bear-pupil {
+    animation: bearBlink 4s ease-in-out infinite;
+}
+
+@keyframes bearBlink {
+    0%, 42%, 48%, 100% { transform: scaleY(1); }
+    45% { transform: scaleY(0.1); }
+}
+
+.bear-cheek {
+    animation: cheekPulse 3s ease-in-out infinite 1s;
+}
+
+/* Cat idle animation */
+.face-cat {
+    animation: catBounce 2s ease-in-out infinite;
+}
+
+@keyframes catBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+.cat-pupil {
+    animation: catPupilDilate 3s ease-in-out infinite;
+}
+
+@keyframes catPupilDilate {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(1.3); }
+}
+
+.cat-whisker {
+    animation: whiskerTwitch 2.5s ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes whiskerTwitch {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(2deg); }
+    75% { transform: rotate(-2deg); }
+}
+
+.cat-cheek {
+    animation: cheekPulse 3s ease-in-out infinite 0.7s;
+}
+
+/* Hover animations for characters */
+.answer-circle:hover .face-duck {
+    animation: duckExcited 0.4s ease-in-out infinite;
+}
+
+@keyframes duckExcited {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-6px) rotate(3deg); }
+}
+
+.answer-circle:hover .face-frog {
+    animation: frogHop 0.5s ease-in-out infinite;
+}
+
+@keyframes frogHop {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    30% { transform: translateY(3px) scaleY(0.9); }
+    60% { transform: translateY(-8px) scaleY(1.05); }
+}
+
+.answer-circle:hover .face-bear {
+    animation: bearWiggle 0.3s ease-in-out infinite;
+}
+
+@keyframes bearWiggle {
+    0%, 100% { transform: rotate(-4deg); }
+    50% { transform: rotate(4deg); }
+}
+
+.answer-circle:hover .face-cat {
+    animation: catPounce 0.4s ease-in-out infinite;
+}
+
+@keyframes catPounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-8px) scale(1.05); }
+}
+
+/* Correct answer character celebration */
+.answer-circle.correct .face-duck {
+    animation: duckCelebrate 0.6s ease-in-out 3;
+}
+
+@keyframes duckCelebrate {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(-15deg) scale(1.1); }
+    75% { transform: rotate(15deg) scale(1.1); }
+}
+
+.answer-circle.correct .face-frog {
+    animation: frogJoy 0.5s ease-in-out 3;
+}
+
+@keyframes frogJoy {
+    0%, 100% { transform: translateY(0) scaleX(1); }
+    50% { transform: translateY(-12px) scaleX(1.1); }
+}
+
+.answer-circle.correct .face-bear {
+    animation: bearDance 0.4s ease-in-out 3;
+}
+
+@keyframes bearDance {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg) translateY(-3px); }
+    75% { transform: rotate(10deg) translateY(-3px); }
+}
+
+.answer-circle.correct .face-cat {
+    animation: catHappy 0.5s ease-in-out 3;
+}
+
+@keyframes catHappy {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(-5deg); }
+    66% { transform: translateY(-10px) rotate(5deg); }
+}
+
+/* Wrong answer character reaction */
+.answer-circle.wrong .face-duck,
+.answer-circle.wrong .face-frog,
+.answer-circle.wrong .face-bear,
+.answer-circle.wrong .face-cat {
+    animation: characterSad 0.4s ease-in-out;
+}
+
+@keyframes characterSad {
+    0% { transform: translateY(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateY(3px); }
+    75% { transform: translateX(5px); }
+    100% { transform: translateY(0); }
 }
 
 /* Correct answer animation */
