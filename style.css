@@ -473,6 +473,8 @@ body::after {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     z-index: 2;
     position: relative;
+    align-self: flex-end;
+    margin-bottom: 15px;
 }
 
 /* Character Faces */
