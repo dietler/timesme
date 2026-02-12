@@ -671,6 +671,7 @@ body::after {
 
 .bear-pupil {
     animation: bearBlink 4s ease-in-out infinite;
+    transform-origin: center;
 }
 
 @keyframes bearBlink {
@@ -694,6 +695,7 @@ body::after {
 
 .cat-pupil {
     animation: catPupilDilate 3s ease-in-out infinite;
+    transform-origin: center;
 }
 
 @keyframes catPupilDilate {
