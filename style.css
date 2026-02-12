@@ -2219,11 +2219,24 @@ body::after {
 
 .whiteboard-answer {
     background: rgba(255, 255, 255, 0.3);
-    padding: 8px 15px;
+    padding: 12px 22px;
     border-radius: 12px;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.whiteboard-answer:hover {
+    background: rgba(255, 255, 255, 0.55);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.whiteboard-answer:active {
+    transform: translateY(0) scale(0.97);
 }
 
 .whiteboard-controls {

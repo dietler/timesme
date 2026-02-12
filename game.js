@@ -1117,9 +1117,18 @@ class MathGame {
         );
         
         // Update whiteboard answers display
-        this.whiteboardAnswers.innerHTML = answerTexts.map(text => 
-            `<span class="whiteboard-answer">${text}</span>`
+        this.whiteboardAnswers.innerHTML = answerTexts.map((text, index) => 
+            `<span class="whiteboard-answer" data-answer-index="${index}">${text}</span>`
         ).join('');
+
+        // Add click handlers to whiteboard answers
+        this.whiteboardAnswers.querySelectorAll('.whiteboard-answer').forEach(span => {
+            span.addEventListener('click', () => {
+                const answerIndex = parseInt(span.dataset.answerIndex);
+                this.hideWhiteboard();
+                this.checkAnswer(answerIndex);
+            });
+        });
         
         // Show overlay
         this.whiteboardOverlay.classList.add('active');
