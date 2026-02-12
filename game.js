@@ -426,6 +426,9 @@ class MathGame {
         this.finalScoreElement.textContent = this.score;
         this.resultsScreen.classList.add('show');
         
+        // Record this game's score
+        this.statsManager.recordGameScore(this.score, this.totalQuestions);
+        
         // Update results title based on score
         const resultsTitle = document.querySelector('.results-title');
         if (this.score === 20) {
@@ -494,6 +497,9 @@ class MathGame {
         this.statsScreen.classList.add('show');
         
         const stats = this.statsManager.getStatistics();
+        
+        // Draw the scores chart
+        this.drawScoresChart(stats.scores);
         
         // Display most missed problems
         const missedStatsElement = document.getElementById('missed-stats');
@@ -569,6 +575,132 @@ class MathGame {
         `;
     }
     
+    drawScoresChart(scores) {
+        const canvas = document.getElementById('scores-chart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const container = canvas.parentElement;
+        
+        // Set canvas size
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        if (scores.length === 0) {
+            ctx.fillStyle = '#999';
+            ctx.font = '20px Comic Sans MS';
+            ctx.textAlign = 'center';
+            ctx.fillText('No game history yet. Play some rounds!', width / 2, height / 2);
+            return;
+        }
+        
+        // Calculate padding
+        const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        
+        // Calculate running average
+        const runningAvg = [];
+        let sum = 0;
+        scores.forEach((score, index) => {
+            sum += score.score;
+            runningAvg.push(sum / (index + 1));
+        });
+        
+        // Find max score for scaling
+        const maxScore = Math.max(...scores.map(s => s.score), ...runningAvg, 20);
+        const yScale = chartHeight / maxScore;
+        const xScale = chartWidth / Math.max(scores.length - 1, 1);
+        
+        // Draw grid lines
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            const y = padding.top + (chartHeight / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(padding.left + chartWidth, y);
+            ctx.stroke();
+            
+            // Y-axis labels
+            const value = Math.round(maxScore - (maxScore / 4) * i);
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Comic Sans MS';
+            ctx.textAlign = 'right';
+            ctx.fillText(value.toString(), padding.left - 10, y + 5);
+        }
+        
+        // Draw X-axis labels
+        ctx.fillStyle = '#666';
+        ctx.font = '12px Comic Sans MS';
+        ctx.textAlign = 'center';
+        scores.forEach((score, index) => {
+            if (scores.length <= 10 || index % Math.ceil(scores.length / 10) === 0) {
+                const x = padding.left + xScale * index;
+                ctx.fillText(`${index + 1}`, x, height - padding.bottom + 20);
+            }
+        });
+        
+        // Draw running average line
+        ctx.strokeStyle = '#f093fb';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        runningAvg.forEach((avg, index) => {
+            const x = padding.left + xScale * index;
+            const y = padding.top + chartHeight - (avg * yScale);
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+        
+        // Draw score line
+        ctx.strokeStyle = '#667eea';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        scores.forEach((score, index) => {
+            const x = padding.left + xScale * index;
+            const y = padding.top + chartHeight - (score.score * yScale);
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+        
+        // Draw score points
+        scores.forEach((score, index) => {
+            const x = padding.left + xScale * index;
+            const y = padding.top + chartHeight - (score.score * yScale);
+            
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        // Draw axis labels
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 14px Comic Sans MS';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Number', width / 2, height - 5);
+        
+        ctx.save();
+        ctx.translate(15, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Score', 0, 0);
+        ctx.restore();
+    }
+    
     showStatsFromGame() {
         // Show stats from the game screen (not results screen)
         this.statsScreen.classList.add('show');
@@ -621,6 +753,7 @@ class MathGame {
 class StatisticsManager {
     constructor() {
         this.storageKey = 'mathGameStats';
+        this.scoresKey = 'mathGameScores';
         this.loadStats();
     }
     
@@ -631,10 +764,18 @@ class StatisticsManager {
         } else {
             this.stats = {};
         }
+        
+        const scoresStored = localStorage.getItem(this.scoresKey);
+        if (scoresStored) {
+            this.scores = JSON.parse(scoresStored);
+        } else {
+            this.scores = [];
+        }
     }
     
     saveStats() {
         localStorage.setItem(this.storageKey, JSON.stringify(this.stats));
+        localStorage.setItem(this.scoresKey, JSON.stringify(this.scores));
     }
     
     recordAnswer(problem, isCorrect) {
@@ -651,6 +792,23 @@ class StatisticsManager {
             this.stats[problem].correct++;
         } else {
             this.stats[problem].incorrect++;
+        }
+        
+        this.saveStats();
+    }
+    
+    recordGameScore(score, totalQuestions) {
+        const timestamp = Date.now();
+        this.scores.push({
+            score,
+            totalQuestions,
+            timestamp,
+            date: new Date(timestamp).toLocaleDateString()
+        });
+        
+        // Keep only last 20 games
+        if (this.scores.length > 20) {
+            this.scores = this.scores.slice(-20);
         }
         
         this.saveStats();
@@ -682,12 +840,14 @@ class StatisticsManager {
             mostMissed,
             mostCorrect,
             totalAttempts,
-            totalCorrect
+            totalCorrect,
+            scores: this.scores
         };
     }
     
     clearAll() {
         this.stats = {};
+        this.scores = [];
         this.saveStats();
     }
 }
