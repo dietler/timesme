@@ -340,7 +340,7 @@ body::after {
     margin-top: 5px;
 }
 
-.header-stats-btn {
+.header-stats-btn, .header-btn {
     background: white;
     border: none;
     border-radius: 50%;
@@ -355,13 +355,78 @@ body::after {
     align-items: center;
 }
 
-.header-stats-btn:hover {
+.header-stats-btn:hover, .header-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
-.header-stats-btn:active {
+.header-stats-btn:active, .header-btn:active {
     transform: scale(0.95);
+}
+
+.header-collection-btn {
+    font-size: 24px;
+    gap: 2px;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.collection-count {
+    font-size: 14px;
+    font-weight: bold;
+    color: #764ba2;
+}
+
+/* Wallet Display */
+.wallet-display {
+    background: white;
+    border-radius: 20px;
+    padding: 10px 18px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.wallet-icon {
+    font-size: 24px;
+}
+
+.wallet-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #d4a017;
+}
+
+.wallet-display.coin-bounce {
+    animation: coinBounceAnim 0.5s ease;
+}
+
+@keyframes coinBounceAnim {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.25); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+    60% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+/* Coin float animation */
+.coin-float-animation {
+    position: fixed;
+    font-size: 22px;
+    font-weight: bold;
+    color: #d4a017;
+    pointer-events: none;
+    z-index: 2000;
+    animation: coinFloat 1.2s ease-out forwards;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+@keyframes coinFloat {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
 }
 
 /* Question Area */
@@ -1726,4 +1791,334 @@ body::after {
         padding: 15px 30px;
         font-size: 24px;
     }
+}
+
+/* Results Coins Display */
+.results-coins {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.results-coins-earned, .results-coins-total {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+    border-radius: 15px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 140px;
+}
+
+.results-coins-label {
+    display: block;
+    font-size: 14px;
+    color: #b8860b;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.results-coins-value {
+    display: block;
+    font-size: 28px;
+    font-weight: bold;
+    color: #d4a017;
+    margin-top: 4px;
+}
+
+/* Results store/collection buttons */
+.store-btn, .collection-btn {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 20px 40px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.store-btn {
+    background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+}
+
+.collection-btn {
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+}
+
+.store-btn:hover, .collection-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.store-btn:active, .collection-btn:active {
+    transform: scale(0.95);
+}
+
+/* Store Screen */
+.store-screen, .collection-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    animation: fadeIn 0.5s ease;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.store-screen.show, .collection-screen.show {
+    display: flex;
+}
+
+.store-content, .collection-content {
+    background: white;
+    border-radius: 40px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.store-title, .collection-title {
+    font-size: 48px;
+    color: #764ba2;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.store-wallet {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+    border-radius: 15px;
+    padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.store-content > .store-wallet {
+    display: flex;
+    justify-content: center;
+}
+
+.store-wallet-icon {
+    font-size: 28px;
+}
+
+.store-wallet-amount {
+    font-weight: bold;
+    color: #d4a017;
+}
+
+/* Store Grid */
+.store-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.store-tier-header {
+    grid-column: 1 / -1;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+
+.store-tier-header.tier-cheap { background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; }
+.store-tier-header.tier-medium { background: linear-gradient(135deg, #cce5ff, #b8daff); color: #004085; }
+.store-tier-header.tier-expensive { background: linear-gradient(135deg, #e2d5f0, #d4c4e3); color: #4a1a7a; }
+.store-tier-header.tier-legendary { background: linear-gradient(135deg, #fff3cd, #ffeeba); color: #856404; }
+
+.store-item {
+    background: #f8f9fa;
+    border-radius: 18px;
+    padding: 15px 10px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.store-item:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.store-item::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.store-item:hover::before {
+    opacity: 1;
+    animation: sparkleShimmer 1.5s linear infinite;
+}
+
+@keyframes sparkleShimmer {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.store-item-emoji {
+    font-size: 42px;
+    margin-bottom: 6px;
+}
+
+.store-item-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.store-item-price {
+    font-size: 14px;
+    color: #d4a017;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.store-buy-btn {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.store-buy-btn:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.store-buy-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    color: #888;
+}
+
+.store-item-owned {
+    font-size: 16px;
+    font-weight: bold;
+    color: #22c55e;
+    padding: 8px 0;
+}
+
+.store-item.owned {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 2px solid #22c55e;
+}
+
+.store-item.cant-afford {
+    opacity: 0.65;
+}
+
+.store-item[data-tier="legendary"] {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe082 40%, #fff8e1 100%);
+    border: 2px solid #ffd700;
+}
+
+.store-item[data-tier="legendary"].owned {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 2px solid #22c55e;
+}
+
+/* Purchase celebration */
+.purchase-celebration {
+    position: fixed;
+    font-size: 40px;
+    pointer-events: none;
+    z-index: 2000;
+    animation: purchaseBurst 1.2s ease-out forwards;
+}
+
+@keyframes purchaseBurst {
+    0% {
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-120px) scale(0.3);
+        opacity: 0;
+    }
+}
+
+/* Collection Screen */
+.collection-progress {
+    text-align: center;
+    font-size: 22px;
+    color: #764ba2;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.collection-item {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 18px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.collection-item:hover {
+    animation: collectionBounce 0.4s ease;
+}
+
+@keyframes collectionBounce {
+    0%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-12px); }
+    60% { transform: translateY(-4px); }
+}
+
+.collection-emoji {
+    font-size: 42px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.collection-name {
+    font-size: 13px;
+    color: #666;
+    font-weight: bold;
 }

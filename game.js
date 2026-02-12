@@ -10,6 +10,7 @@ class MathGame {
         this.answersSinceLastAnimation = 0; // Track answers for random animations
         this.nextAnimationTrigger = this.getRandomAnimationTrigger(); // When to show next animation
         this.statsOpenedFromGame = false; // Track where stats was opened from
+        this.coinsEarnedThisRound = 0; // Track coins earned in current round
         
         // Button text constants
         this.STATS_BTN_GAME_TEXT = 'Back to Game 🎮';
@@ -36,9 +37,29 @@ class MathGame {
         this.heatingMeterFire = document.getElementById('heating-meter-fire');
         this.heatingMeterCount = document.getElementById('heating-meter-count');
         this.titleBalloons = document.getElementById('title-balloons');
+        this.walletAmountEl = document.getElementById('wallet-amount');
+        this.headerStoreBtn = document.getElementById('header-store-btn');
+        this.headerCollectionBtn = document.getElementById('header-collection-btn');
+        this.headerCollectionCount = document.getElementById('header-collection-count');
+        this.storeScreen = document.getElementById('store-screen');
+        this.storeGrid = document.getElementById('store-grid');
+        this.storeWalletAmount = document.getElementById('store-wallet-amount');
+        this.backFromStoreBtn = document.getElementById('back-from-store-btn');
+        this.collectionScreen = document.getElementById('collection-screen');
+        this.collectionGrid = document.getElementById('collection-grid');
+        this.collectionProgress = document.getElementById('collection-progress');
+        this.backFromCollectionBtn = document.getElementById('back-from-collection-btn');
+        this.resultsStoreBtn = document.getElementById('results-store-btn');
+        this.resultsCollectionBtn = document.getElementById('results-collection-btn');
+        this.resultsCoinsEarned = document.getElementById('results-coins-earned');
+        this.resultsWalletBalance = document.getElementById('results-wallet-balance');
         
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
+        
+        // Initialize wallet and store managers
+        this.walletManager = new WalletManager();
+        this.storeManager = new StoreManager();
         
         // Initialize audio context for sound effects
         this.audioContext = null;
@@ -62,6 +83,16 @@ class MathGame {
         this.backFromStatsBtn.addEventListener('click', () => this.hideStats());
         this.clearStatsBtn.addEventListener('click', () => this.clearStats());
         this.headerStatsBtn.addEventListener('click', () => this.showStatsFromGame());
+        this.headerStoreBtn.addEventListener('click', () => this.showStore());
+        this.headerCollectionBtn.addEventListener('click', () => this.showCollection());
+        this.backFromStoreBtn.addEventListener('click', () => this.hideStore());
+        this.backFromCollectionBtn.addEventListener('click', () => this.hideCollection());
+        this.resultsStoreBtn.addEventListener('click', () => this.showStore());
+        this.resultsCollectionBtn.addEventListener('click', () => this.showCollection());
+        
+        // Update wallet display
+        this.updateWalletDisplay();
+        this.updateCollectionCount();
         
         // Display first question
         this.displayQuestion();
@@ -363,6 +394,14 @@ class MathGame {
             this.playCorrectSound();
             this.updateScore();
             this.createConfetti();
+            
+            // Award streak-based coins
+            const coinsEarned = this.streak;
+            this.walletManager.addCoins(coinsEarned);
+            this.coinsEarnedThisRound += coinsEarned;
+            this.updateWalletDisplay();
+            this.showCoinAnimation(coinsEarned);
+            this.playChaChingSound();
         } else {
             // Wrong answer
             selectedCircle.classList.add('wrong');
@@ -439,6 +478,10 @@ class MathGame {
         
         // Record this game's score
         this.statsManager.recordGameScore(this.score, this.totalQuestions);
+        
+        // Show coins earned this round
+        this.resultsCoinsEarned.textContent = this.coinsEarnedThisRound + ' 🪙';
+        this.resultsWalletBalance.textContent = this.walletManager.getBalance() + ' 🪙';
         
         // Update results title based on score
         const resultsTitle = document.querySelector('.results-title');
@@ -744,6 +787,7 @@ class MathGame {
         this.currentQuestion = 0;
         this.roundAnswers = [];
         this.streak = 0;
+        this.coinsEarnedThisRound = 0;
         this.answersSinceLastAnimation = 0;
         this.nextAnimationTrigger = this.getRandomAnimationTrigger();
         this.resultsScreen.classList.remove('show');
@@ -763,6 +807,263 @@ class MathGame {
         // Generate new questions
         this.generateQuestions();
         this.displayQuestion();
+    }
+    
+    // Wallet and Store methods
+    updateWalletDisplay() {
+        const balance = this.walletManager.getBalance();
+        this.walletAmountEl.textContent = balance;
+        this.storeWalletAmount.textContent = balance;
+    }
+    
+    updateCollectionCount() {
+        this.headerCollectionCount.textContent = this.storeManager.getOwnedCount();
+    }
+    
+    showCoinAnimation(amount) {
+        const walletEl = document.getElementById('wallet-display');
+        const rect = walletEl.getBoundingClientRect();
+        
+        const floater = document.createElement('div');
+        floater.className = 'coin-float-animation';
+        floater.textContent = `+${amount} 🪙`;
+        floater.style.left = rect.left + rect.width / 2 + 'px';
+        floater.style.top = rect.top + 'px';
+        document.body.appendChild(floater);
+        
+        // Bounce the wallet
+        walletEl.classList.remove('coin-bounce');
+        void walletEl.offsetWidth;
+        walletEl.classList.add('coin-bounce');
+        
+        setTimeout(() => floater.remove(), 1200);
+    }
+    
+    playChaChingSound() {
+        this.initAudioContext();
+        const ctx = this.audioContext;
+        
+        const notes = [
+            { freq: 1200, start: 0, duration: 0.08 },
+            { freq: 1500, start: 0.08, duration: 0.08 },
+            { freq: 1800, start: 0.16, duration: 0.12 }
+        ];
+        
+        notes.forEach(note => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.start);
+            osc.type = 'triangle';
+            gain.gain.setValueAtTime(0.15, ctx.currentTime + note.start);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.start + note.duration);
+            osc.start(ctx.currentTime + note.start);
+            osc.stop(ctx.currentTime + note.start + note.duration);
+        });
+    }
+    
+    showStore() {
+        this.updateWalletDisplay();
+        this.renderStoreItems();
+        this.storeScreen.classList.add('show');
+    }
+    
+    hideStore() {
+        this.storeScreen.classList.remove('show');
+    }
+    
+    showCollection() {
+        this.renderCollection();
+        this.collectionScreen.classList.add('show');
+    }
+    
+    hideCollection() {
+        this.collectionScreen.classList.remove('show');
+    }
+    
+    renderStoreItems() {
+        this.storeGrid.innerHTML = '';
+        const tiers = ['cheap', 'medium', 'expensive', 'legendary'];
+        const tierLabels = { cheap: '🟢 Common', medium: '🔵 Cool', expensive: '🟣 Premium', legendary: '🟡 Legendary' };
+        
+        tiers.forEach(tier => {
+            const tierHeader = document.createElement('div');
+            tierHeader.className = 'store-tier-header tier-' + tier;
+            tierHeader.textContent = tierLabels[tier];
+            this.storeGrid.appendChild(tierHeader);
+            
+            const tierItems = this.storeManager.items.filter(item => item.tier === tier);
+            tierItems.forEach(item => {
+                const card = document.createElement('div');
+                const owned = this.storeManager.isOwned(item.id);
+                const canAfford = this.walletManager.getBalance() >= item.price;
+                card.className = 'store-item' + (owned ? ' owned' : '') + (!canAfford && !owned ? ' cant-afford' : '');
+                card.setAttribute('data-tier', tier);
+                
+                card.innerHTML = `
+                    <div class="store-item-emoji">${item.emoji}</div>
+                    <div class="store-item-name">${item.name}</div>
+                    <div class="store-item-price">${item.price} 🪙</div>
+                    ${owned
+                        ? '<div class="store-item-owned">Owned ✓</div>'
+                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!" aria-label="' + item.name + ' - Not enough coins"' : ''}>${canAfford ? 'Buy' : '🔒'}</button>`
+                    }
+                `;
+                
+                if (!owned && canAfford) {
+                    card.querySelector('.store-buy-btn').addEventListener('click', () => this.purchaseItem(item));
+                }
+                
+                this.storeGrid.appendChild(card);
+            });
+        });
+    }
+    
+    purchaseItem(item) {
+        if (this.walletManager.spendCoins(item.price)) {
+            this.storeManager.purchase(item.id);
+            this.updateWalletDisplay();
+            this.updateCollectionCount();
+            this.renderStoreItems();
+            this.showPurchaseCelebration(item.emoji);
+        }
+    }
+    
+    showPurchaseCelebration(emoji) {
+        // Burst of the purchased emoji
+        for (let i = 0; i < 12; i++) {
+            const el = document.createElement('div');
+            el.className = 'purchase-celebration';
+            el.textContent = emoji;
+            el.style.left = '50%';
+            el.style.top = '50%';
+            el.style.setProperty('--angle', (i * 30) + 'deg');
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+    }
+    
+    renderCollection() {
+        this.collectionGrid.innerHTML = '';
+        const owned = this.storeManager.getOwnedItems();
+        this.collectionProgress.textContent = `${this.storeManager.getOwnedCount()}/${this.storeManager.getTotalCount()} collected`;
+        
+        if (owned.length === 0) {
+            this.collectionGrid.innerHTML = '<div class="no-stats">No items yet! Visit the store to buy some. 🏪</div>';
+            return;
+        }
+        
+        owned.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'collection-item';
+            el.innerHTML = `<span class="collection-emoji">${item.emoji}</span><span class="collection-name">${item.name}</span>`;
+            this.collectionGrid.appendChild(el);
+        });
+    }
+}
+
+// Wallet Manager Class
+class WalletManager {
+    constructor() {
+        this.storageKey = 'mathGameWallet';
+        this.balance = parseInt(localStorage.getItem(this.storageKey), 10) || 0;
+    }
+
+    getBalance() {
+        return this.balance;
+    }
+
+    addCoins(amount) {
+        this.balance += amount;
+        localStorage.setItem(this.storageKey, this.balance);
+        return this.balance;
+    }
+
+    spendCoins(amount) {
+        if (amount > this.balance) return false;
+        this.balance -= amount;
+        localStorage.setItem(this.storageKey, this.balance);
+        return true;
+    }
+}
+
+// Store Manager Class
+class StoreManager {
+    constructor() {
+        this.storageKey = 'mathGameOwnedItems';
+        this.ownedItems = JSON.parse(localStorage.getItem(this.storageKey)) || [];
+        this.items = [
+            // Cheap (5-15 coins)
+            { id: 'wacky', emoji: '🤪', name: 'Party Brain', price: 5, tier: 'cheap' },
+            { id: 'cool', emoji: '😎', name: 'Cool Dude', price: 5, tier: 'cheap' },
+            { id: 'party', emoji: '🥳', name: 'Party Animal', price: 8, tier: 'cheap' },
+            { id: 'nerd', emoji: '🤓', name: 'Smarty Pants', price: 8, tier: 'cheap' },
+            { id: 'monocle', emoji: '🧐', name: 'Fancy Thinker', price: 10, tier: 'cheap' },
+            { id: 'poop', emoji: '💩', name: 'Silly Pile', price: 10, tier: 'cheap' },
+            { id: 'alien', emoji: '👽', name: 'Space Buddy', price: 12, tier: 'cheap' },
+            { id: 'robot', emoji: '🤖', name: 'Robo Friend', price: 12, tier: 'cheap' },
+            { id: 'invader', emoji: '👾', name: 'Pixel Pal', price: 14, tier: 'cheap' },
+            { id: 'pumpkin', emoji: '🎃', name: 'Spooky Jack', price: 15, tier: 'cheap' },
+            // Medium (20-40 coins)
+            { id: 'bronto', emoji: '🦕', name: 'Dino Friend', price: 20, tier: 'medium' },
+            { id: 'trex', emoji: '🦖', name: 'T-Rex King', price: 22, tier: 'medium' },
+            { id: 'dragon', emoji: '🐉', name: 'Fire Breather', price: 25, tier: 'medium' },
+            { id: 'squid', emoji: '🦑', name: 'Ink Master', price: 25, tier: 'medium' },
+            { id: 'shark', emoji: '🦈', name: 'Fin Boss', price: 28, tier: 'medium' },
+            { id: 'octopus', emoji: '🐙', name: 'Eight Arms', price: 28, tier: 'medium' },
+            { id: 'flamingo', emoji: '🦩', name: 'Pink Dancer', price: 30, tier: 'medium' },
+            { id: 'peacock', emoji: '🦚', name: 'Fancy Feathers', price: 32, tier: 'medium' },
+            { id: 'dragon2', emoji: '🐲', name: 'Lucky Dragon', price: 35, tier: 'medium' },
+            { id: 'mermaid', emoji: '🧜‍♀️', name: 'Sea Princess', price: 40, tier: 'medium' },
+            // Expensive (50-80 coins)
+            { id: 'crown', emoji: '👑', name: 'Royal Crown', price: 50, tier: 'expensive' },
+            { id: 'diamond', emoji: '💎', name: 'Sparkle Gem', price: 55, tier: 'expensive' },
+            { id: 'trophy', emoji: '🏆', name: 'Gold Trophy', price: 55, tier: 'expensive' },
+            { id: 'rainbow', emoji: '🌈', name: 'Rainbow Road', price: 60, tier: 'expensive' },
+            { id: 'guitar', emoji: '🎸', name: 'Rock Star', price: 60, tier: 'expensive' },
+            { id: 'rocket', emoji: '🚀', name: 'Blast Off', price: 65, tier: 'expensive' },
+            { id: 'ufo', emoji: '🛸', name: 'UFO Rider', price: 70, tier: 'expensive' },
+            { id: 'lightning', emoji: '⚡', name: 'Thunder Bolt', price: 70, tier: 'expensive' },
+            { id: 'crystal', emoji: '🔮', name: 'Magic Ball', price: 75, tier: 'expensive' },
+            { id: 'nazar', emoji: '🧿', name: 'Lucky Eye', price: 80, tier: 'expensive' },
+            // Legendary (100+ coins)
+            { id: 'galaxy', emoji: '🌌', name: 'Galaxy Brain', price: 100, tier: 'legendary' },
+            { id: 'fireworks', emoji: '🎆', name: 'Sky Boomer', price: 110, tier: 'legendary' },
+            { id: 'castle', emoji: '🏰', name: 'Dream Castle', price: 120, tier: 'legendary' },
+            { id: 'liberty', emoji: '🗽', name: 'Lady Liberty', price: 130, tier: 'legendary' },
+            { id: 'masks', emoji: '🎭', name: 'Drama Star', price: 140, tier: 'legendary' },
+            { id: 'circus', emoji: '🎪', name: 'Big Top', price: 150, tier: 'legendary' },
+            { id: 'carousel', emoji: '🎠', name: 'Magic Ride', price: 160, tier: 'legendary' },
+            { id: 'dizzy', emoji: '💫', name: 'Dizzy Star', price: 170, tier: 'legendary' },
+            { id: 'comet', emoji: '☄️', name: 'Comet Chaser', price: 180, tier: 'legendary' },
+            { id: 'shooting', emoji: '🌠', name: 'Wish Maker', price: 200, tier: 'legendary' },
+        ];
+    }
+
+    isOwned(itemId) {
+        return this.ownedItems.includes(itemId);
+    }
+
+    purchase(itemId) {
+        if (!this.isOwned(itemId)) {
+            this.ownedItems.push(itemId);
+            localStorage.setItem(this.storageKey, JSON.stringify(this.ownedItems));
+            return true;
+        }
+        return false;
+    }
+
+    getOwnedCount() {
+        return this.ownedItems.length;
+    }
+
+    getTotalCount() {
+        return this.items.length;
+    }
+
+    getOwnedItems() {
+        return this.items.filter(item => this.isOwned(item.id));
     }
 }
 
