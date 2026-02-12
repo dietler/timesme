@@ -701,12 +701,19 @@ body::after {
 
 .cat-pupil {
     animation: catPupilDilate 3s ease-in-out infinite;
-    transform-origin: center;
+}
+
+.cat-pupil-left {
+    transform-origin: 42px 50px;
+}
+
+.cat-pupil-right {
+    transform-origin: 82px 50px;
 }
 
 @keyframes catPupilDilate {
     0%, 100% { transform: scaleX(1); }
-    50% { transform: scaleX(1.25); }
+    50% { transform: scaleX(1.15); }
 }
 
 .cat-whisker {
