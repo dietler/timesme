@@ -505,12 +505,12 @@ body::after {
 
 .duck-wing-left {
     animation: duckWingLeft 1.5s ease-in-out infinite;
-    transform-origin: 28px 80px;
+    transform-origin: 18px 80px;
 }
 
 .duck-wing-right {
     animation: duckWingRight 1.5s ease-in-out infinite;
-    transform-origin: 92px 80px;
+    transform-origin: 102px 80px;
 }
 
 @keyframes duckWingLeft {
