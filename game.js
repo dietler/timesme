@@ -9,6 +9,7 @@ class MathGame {
         this.streak = 0; // Track consecutive correct answers
         this.answersSinceLastAnimation = 0; // Track answers for random animations
         this.nextAnimationTrigger = this.getRandomAnimationTrigger(); // When to show next animation
+        this.statsOpenedFromGame = false; // Track where stats was opened from
         
         // DOM elements
         this.scoreElement = document.getElementById('score');
@@ -30,6 +31,7 @@ class MathGame {
         this.heatingMeterFill = document.getElementById('heating-meter-fill');
         this.heatingMeterFire = document.getElementById('heating-meter-fire');
         this.heatingMeterCount = document.getElementById('heating-meter-count');
+        this.titleBalloons = document.getElementById('title-balloons');
         
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
@@ -223,7 +225,7 @@ class MathGame {
     }
     
     getRandomAnimationTrigger() {
-        // Random number between 3 and 8
+        // Random number between 3 and 8 inclusive (6 possible values)
         return Math.floor(Math.random() * 6) + 3;
     }
     
@@ -321,6 +323,11 @@ class MathGame {
         const selectedAnswer = parseInt(selectedCircle.querySelector('.answer-text').textContent);
         const { question, answer } = this.questions[this.currentQuestion];
         const isCorrect = selectedAnswer === this.currentCorrectAnswer;
+        
+        // Hide title balloons after first answer
+        if (this.currentQuestion === 0 && this.titleBalloons) {
+            this.titleBalloons.classList.add('float-away');
+        }
         
         // Store the answer for review
         this.roundAnswers.push({
@@ -703,21 +710,22 @@ class MathGame {
     
     showStatsFromGame() {
         // Show stats from the game screen (not results screen)
+        this.statsOpenedFromGame = true;
         this.statsScreen.classList.add('show');
         this.showStats();
         
-        // Change back button behavior
-        const backBtn = this.backFromStatsBtn;
-        backBtn.textContent = 'Back to Game 🎮';
-        backBtn.onclick = () => {
-            this.statsScreen.classList.remove('show');
-            backBtn.textContent = 'Back to Results';
-            backBtn.onclick = () => this.hideStats();
-        };
+        // Update button text
+        this.backFromStatsBtn.textContent = 'Back to Game 🎮';
     }
     
     hideStats() {
         this.statsScreen.classList.remove('show');
+        
+        // Reset button text and flag
+        if (this.statsOpenedFromGame) {
+            this.backFromStatsBtn.textContent = 'Back to Results';
+            this.statsOpenedFromGame = false;
+        }
     }
     
     clearStats() {
@@ -736,6 +744,11 @@ class MathGame {
         this.nextAnimationTrigger = this.getRandomAnimationTrigger();
         this.resultsScreen.classList.remove('show');
         this.scoreElement.textContent = '0';
+        
+        // Show title balloons again
+        if (this.titleBalloons) {
+            this.titleBalloons.classList.remove('float-away');
+        }
         
         // Reset heating meter
         this.heatingMeterFill.style.height = '0%';
@@ -807,7 +820,7 @@ class StatisticsManager {
         });
         
         // Keep only last 20 games
-        if (this.scores.length > 20) {
+        if (this.scores.length >= 20) {
             this.scores = this.scores.slice(-20);
         }
         
