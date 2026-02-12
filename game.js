@@ -54,6 +54,8 @@ class MathGame {
         this.resultsCoinsEarned = document.getElementById('results-coins-earned');
         this.resultsWalletBalance = document.getElementById('results-wallet-balance');
         this.headerWhiteboardBtn = document.getElementById('header-whiteboard-btn');
+        this.headerMenuBtn = document.getElementById('header-menu-btn');
+        this.headerMenuPopup = document.getElementById('header-menu-popup');
         this.whiteboardOverlay = document.getElementById('whiteboard-overlay');
         this.whiteboardCanvas = document.getElementById('whiteboard-canvas');
         this.whiteboardCloseBtn = document.getElementById('whiteboard-close-btn');
@@ -104,6 +106,21 @@ class MathGame {
         this.headerWhiteboardBtn.addEventListener('click', () => this.showWhiteboard());
         this.whiteboardCloseBtn.addEventListener('click', () => this.hideWhiteboard());
         this.whiteboardEraserBtn.addEventListener('click', () => this.clearWhiteboard());
+        
+        // Menu toggle
+        this.headerMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.headerMenuPopup.classList.toggle('active');
+        });
+        // Close menu when clicking a menu item or clicking outside
+        this.headerMenuPopup.addEventListener('click', () => {
+            this.headerMenuPopup.classList.remove('active');
+        });
+        document.addEventListener('click', (e) => {
+            if (!this.headerMenuBtn.contains(e.target) && !this.headerMenuPopup.contains(e.target)) {
+                this.headerMenuPopup.classList.remove('active');
+            }
+        });
         
         // Initialize whiteboard canvas
         this.initWhiteboard();
@@ -299,7 +316,7 @@ class MathGame {
         
         // Update heating meter
         const percentage = Math.min((this.streak / 20) * 100, 100);
-        this.heatingMeterFill.style.height = percentage + '%';
+        this.heatingMeterFill.style.width = percentage + '%';
         this.heatingMeterCount.textContent = this.streak;
         
         // Add fire effect at 10+ streak
@@ -825,7 +842,7 @@ class MathGame {
         }
         
         // Reset heating meter
-        this.heatingMeterFill.style.height = '0%';
+        this.heatingMeterFill.style.width = '0%';
         this.heatingMeterCount.textContent = '0';
         this.heatingMeterFill.classList.remove('on-fire');
         this.heatingMeterFire.classList.remove('active', 'mega-fire');
