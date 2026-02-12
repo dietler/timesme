@@ -912,7 +912,7 @@ class MathGame {
                     <div class="store-item-price">${item.price} 🪙</div>
                     ${owned
                         ? '<div class="store-item-owned">Owned ✓</div>'
-                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!"' : ''} aria-label="${canAfford ? 'Buy ' : ''} ${(isSecret ? 'Secret Item' : item.name)}${!canAfford ? ' - Not enough coins' : ''}">${canAfford ? 'Buy' : '🔒'}</button>`
+                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!"' : ''} aria-label="${(isSecret ? 'Secret Item' : item.name)}${!canAfford ? ' - Not enough coins' : ''}">${canAfford ? 'Buy' : '🔒'}</button>`
                     }
                 `;
                 
@@ -1044,21 +1044,21 @@ class StoreManager {
             { id: 'comet', emoji: '☄️', name: 'Comet Chaser', price: 180, tier: 'legendary' },
             { id: 'shooting', emoji: '🌠', name: 'Wish Maker', price: 200, tier: 'legendary' },
             // Epic (250-400 coins)
-            { id: 'unicorn', emoji: '🦄', name: 'Epic Unicorn', price: 250, tier: 'epic' },
-            { id: 'phoenix', emoji: '🔥', name: 'Phoenix Fire', price: 280, tier: 'epic' },
-            { id: 'wizard', emoji: '🧙', name: 'Grand Wizard', price: 300, tier: 'epic' },
-            { id: 'dragon_face', emoji: '🐲', name: 'Dragon King', price: 320, tier: 'epic' },
-            { id: 'sun', emoji: '☀️', name: 'Solar Power', price: 350, tier: 'epic' },
-            { id: 'moon', emoji: '🌙', name: 'Lunar Magic', price: 380, tier: 'epic' },
-            { id: 'star', emoji: '⭐', name: 'Star Power', price: 400, tier: 'epic' },
+            { id: 'epic_unicorn', emoji: '🦄', name: 'Epic Unicorn', price: 250, tier: 'epic' },
+            { id: 'epic_phoenix', emoji: '🔥', name: 'Phoenix Fire', price: 280, tier: 'epic' },
+            { id: 'epic_wizard', emoji: '🧙', name: 'Grand Wizard', price: 300, tier: 'epic' },
+            { id: 'epic_dragon', emoji: '🐲', name: 'Dragon King', price: 320, tier: 'epic' },
+            { id: 'epic_sun', emoji: '☀️', name: 'Solar Power', price: 350, tier: 'epic' },
+            { id: 'epic_moon', emoji: '🌙', name: 'Lunar Magic', price: 380, tier: 'epic' },
+            { id: 'epic_star', emoji: '⭐', name: 'Star Power', price: 400, tier: 'epic' },
             // Unreal (500-800 coins)
-            { id: 'infinity', emoji: '♾️', name: 'Infinity Mind', price: 500, tier: 'unreal' },
-            { id: 'atom', emoji: '⚛️', name: 'Atomic Brain', price: 550, tier: 'unreal' },
-            { id: 'dna', emoji: '🧬', name: 'DNA Master', price: 600, tier: 'unreal' },
-            { id: 'black_hole', emoji: '🕳️', name: 'Black Hole', price: 650, tier: 'unreal' },
-            { id: 'telescope', emoji: '🔭', name: 'Star Gazer', price: 700, tier: 'unreal' },
-            { id: 'satellite', emoji: '🛰️', name: 'Space Station', price: 750, tier: 'unreal' },
-            { id: 'cosmos', emoji: '🌌', name: 'Cosmos Lord', price: 800, tier: 'unreal' },
+            { id: 'unreal_infinity', emoji: '♾️', name: 'Infinity Mind', price: 500, tier: 'unreal' },
+            { id: 'unreal_atom', emoji: '⚛️', name: 'Atomic Brain', price: 550, tier: 'unreal' },
+            { id: 'unreal_dna', emoji: '🧬', name: 'DNA Master', price: 600, tier: 'unreal' },
+            { id: 'unreal_black_hole', emoji: '🕳️', name: 'Black Hole', price: 650, tier: 'unreal' },
+            { id: 'unreal_telescope', emoji: '🔭', name: 'Star Gazer', price: 700, tier: 'unreal' },
+            { id: 'unreal_satellite', emoji: '🛰️', name: 'Space Station', price: 750, tier: 'unreal' },
+            { id: 'unreal_cosmos', emoji: '🌌', name: 'Cosmos Lord', price: 800, tier: 'unreal' },
             // Secret (1000+ coins)
             { id: 'precision_master', emoji: '🎯', name: 'Precision Master', price: 1000, tier: 'secret' },
             { id: 'perfect_score', emoji: '💯', name: 'Perfect Score', price: 1200, tier: 'secret' },
