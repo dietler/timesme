@@ -122,7 +122,9 @@ body::after {
 .game-container {
     width: 100vw;
     height: 100vh;
-    max-width: 1024px;
+    height: 100dvh;
+    height: var(--app-height, 100vh);
+    max-width: 1100px;
     padding: 10px 20px;
     display: flex;
     flex-direction: column;
@@ -1837,14 +1839,14 @@ body::after {
     }
 }
 
-/* iPad specific optimizations */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* iPad specific optimizations (10.2" iPad 9th gen: 810x1080 portrait, 1080x810 landscape) */
+@media (min-width: 768px) and (max-width: 1100px) {
     .question {
-        font-size: 80px;
+        font-size: 72px;
     }
     
     .answer-text {
-        font-size: 56px;
+        font-size: 48px;
     }
 }
 

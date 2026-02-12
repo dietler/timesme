@@ -112,9 +112,11 @@ class MathGame {
             e.stopPropagation();
             this.headerMenuPopup.classList.toggle('active');
         });
-        // Close menu when clicking a menu item or clicking outside
-        this.headerMenuPopup.addEventListener('click', () => {
-            this.headerMenuPopup.classList.remove('active');
+        // Close menu when clicking a menu item
+        this.headerMenuPopup.addEventListener('click', (e) => {
+            if (e.target.classList.contains('menu-popup-btn')) {
+                this.headerMenuPopup.classList.remove('active');
+            }
         });
         document.addEventListener('click', (e) => {
             if (!this.headerMenuBtn.contains(e.target) && !this.headerMenuPopup.contains(e.target)) {
@@ -1397,6 +1399,13 @@ class StatisticsManager {
         this.saveStats();
     }
 }
+
+// Set --app-height CSS variable for iOS Safari viewport fix
+function setAppHeight() {
+    document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+}
+window.addEventListener('resize', setAppHeight);
+setAppHeight();
 
 // Start the game when page loads
 document.addEventListener('DOMContentLoaded', () => {
