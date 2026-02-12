@@ -18,12 +18,30 @@
     <div class="squishmallow squishmallow-6">🦊</div>
     
     <div class="game-container">
+        <!-- Title Balloons -->
+        <div class="title-balloons" id="title-balloons">
+            <div class="balloon-word" style="animation-delay: 0s;">Claire's</div>
+            <div class="balloon-word" style="animation-delay: 0.2s;">Squishy</div>
+            <div class="balloon-word" style="animation-delay: 0.4s;">Math</div>
+        </div>
+        
+        <!-- Heating Up Meter -->
+        <div class="heating-meter" id="heating-meter">
+            <div class="heating-meter-label">🔥 STREAK</div>
+            <div class="heating-meter-bar">
+                <div class="heating-meter-fill" id="heating-meter-fill"></div>
+                <div class="heating-meter-fire" id="heating-meter-fire">🔥</div>
+            </div>
+            <div class="heating-meter-count" id="heating-meter-count">0</div>
+        </div>
+        
         <!-- Header with score and progress -->
         <div class="header">
             <div class="score-container">
                 <div class="score-label">Score</div>
                 <div class="score" id="score">0</div>
             </div>
+            <button class="header-stats-btn" id="header-stats-btn" title="View Statistics">📊</button>
             <div class="progress-container">
                 <div class="progress-label">Question</div>
                 <div class="progress" id="progress">1/20</div>
@@ -40,15 +58,39 @@
         <!-- Answer circles -->
         <div class="answers-container">
             <div class="answer-circle" data-answer="0">
+                <div class="character-face face-bear">
+                    <div class="ears">
+                        <div class="ear ear-left">🐻</div>
+                        <div class="ear ear-right">🐻</div>
+                    </div>
+                </div>
                 <span class="answer-text">42</span>
             </div>
             <div class="answer-circle" data-answer="1">
+                <div class="character-face face-cat">
+                    <div class="ears">
+                        <div class="ear ear-left">😺</div>
+                        <div class="ear ear-right">😺</div>
+                    </div>
+                </div>
                 <span class="answer-text">56</span>
             </div>
             <div class="answer-circle" data-answer="2">
+                <div class="character-face face-bunny">
+                    <div class="ears">
+                        <div class="ear ear-left">🐰</div>
+                        <div class="ear ear-right">🐰</div>
+                    </div>
+                </div>
                 <span class="answer-text">48</span>
             </div>
             <div class="answer-circle" data-answer="3">
+                <div class="character-face face-frog">
+                    <div class="eyes">
+                        <div class="eye">👁️</div>
+                        <div class="eye">👁️</div>
+                    </div>
+                </div>
                 <span class="answer-text">63</span>
             </div>
         </div>
@@ -84,6 +126,16 @@
             <div class="stats-content">
                 <h2 class="stats-title">Your Statistics 📊</h2>
                 <div class="stats-sections">
+                    <div class="stats-section">
+                        <h3>Score Timeline 📈</h3>
+                        <div class="chart-container">
+                            <canvas id="scores-chart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <span class="legend-item"><span class="legend-color score-line"></span> Score</span>
+                            <span class="legend-item"><span class="legend-color avg-line"></span> Running Average</span>
+                        </div>
+                    </div>
                     <div class="stats-section">
                         <h3>Most Missed Problems ❌</h3>
                         <div class="stats-list" id="missed-stats"></div>

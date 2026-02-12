@@ -6,6 +6,14 @@ class MathGame {
         this.questions = [];
         this.currentCorrectAnswer = 0;
         this.roundAnswers = []; // Store all answers from current round
+        this.streak = 0; // Track consecutive correct answers
+        this.answersSinceLastAnimation = 0; // Track answers for random animations
+        this.nextAnimationTrigger = this.getRandomAnimationTrigger(); // When to show next animation
+        this.statsOpenedFromGame = false; // Track where stats was opened from
+        
+        // Button text constants
+        this.STATS_BTN_GAME_TEXT = 'Back to Game 🎮';
+        this.STATS_BTN_RESULTS_TEXT = 'Back to Results';
         
         // DOM elements
         this.scoreElement = document.getElementById('score');
@@ -23,6 +31,11 @@ class MathGame {
         this.backFromReviewBtn = document.getElementById('back-from-review-btn');
         this.backFromStatsBtn = document.getElementById('back-from-stats-btn');
         this.clearStatsBtn = document.getElementById('clear-stats-btn');
+        this.headerStatsBtn = document.getElementById('header-stats-btn');
+        this.heatingMeterFill = document.getElementById('heating-meter-fill');
+        this.heatingMeterFire = document.getElementById('heating-meter-fire');
+        this.heatingMeterCount = document.getElementById('heating-meter-count');
+        this.titleBalloons = document.getElementById('title-balloons');
         
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
@@ -48,6 +61,7 @@ class MathGame {
         this.backFromReviewBtn.addEventListener('click', () => this.hideReview());
         this.backFromStatsBtn.addEventListener('click', () => this.hideStats());
         this.clearStatsBtn.addEventListener('click', () => this.clearStats());
+        this.headerStatsBtn.addEventListener('click', () => this.showStatsFromGame());
         
         // Display first question
         this.displayQuestion();
@@ -214,11 +228,110 @@ class MathGame {
         return shuffled;
     }
     
+    getRandomAnimationTrigger() {
+        // Random integer between 3 and 8 inclusive (produces 3, 4, 5, 6, 7, or 8)
+        return Math.floor(Math.random() * 6) + 3;
+    }
+    
+    updateStreak(isCorrect) {
+        if (isCorrect) {
+            this.streak++;
+        } else {
+            this.streak = 0;
+        }
+        
+        // Update heating meter
+        const percentage = Math.min((this.streak / 20) * 100, 100);
+        this.heatingMeterFill.style.height = percentage + '%';
+        this.heatingMeterCount.textContent = this.streak;
+        
+        // Add fire effect at 10+ streak
+        if (this.streak >= 10) {
+            this.heatingMeterFill.classList.add('on-fire');
+            this.heatingMeterFire.classList.add('active');
+            
+            // Mega fire at 15+
+            if (this.streak >= 15) {
+                this.heatingMeterFire.classList.add('mega-fire');
+            }
+        } else {
+            this.heatingMeterFill.classList.remove('on-fire');
+            this.heatingMeterFire.classList.remove('active', 'mega-fire');
+        }
+    }
+    
+    playRandomAnimation(isCorrect) {
+        this.answersSinceLastAnimation++;
+        
+        if (this.answersSinceLastAnimation >= this.nextAnimationTrigger) {
+            this.answersSinceLastAnimation = 0;
+            this.nextAnimationTrigger = this.getRandomAnimationTrigger();
+            
+            if (isCorrect) {
+                this.playCorrectAnimation();
+            } else {
+                this.playWrongAnimation();
+            }
+        }
+    }
+    
+    playCorrectAnimation() {
+        const animations = [
+            { emoji: '❤️', animation: 'heartZoom' },
+            { emoji: '⭐', animation: 'starSpin' },
+            { emoji: '🎈', animation: 'balloonFloat' },
+            { emoji: '🌟', animation: 'sparkle' },
+            { emoji: '🦄', animation: 'unicornGallop' },
+            { emoji: '🌈', animation: 'rainbowSlide' },
+            { emoji: '🎵', animation: 'musicNote' },
+            { emoji: '✨', animation: 'glitter' },
+            { emoji: '🎁', animation: 'giftBox' },
+            { emoji: '🌺', animation: 'flowerBloom' }
+        ];
+        
+        const random = animations[Math.floor(Math.random() * animations.length)];
+        this.createAnimationElement(random.emoji, random.animation, 'correct');
+    }
+    
+    playWrongAnimation() {
+        const animations = [
+            { emoji: '🐍', animation: 'snakeBite' },
+            { emoji: '⛈️', animation: 'stormCloud' },
+            { emoji: '💥', animation: 'explosion' },
+            { emoji: '🌪️', animation: 'tornado' },
+            { emoji: '👻', animation: 'ghost' },
+            { emoji: '🦇', animation: 'batFly' },
+            { emoji: '💔', animation: 'brokenHeart' },
+            { emoji: '☔', animation: 'rain' },
+            { emoji: '🌩️', animation: 'lightning' },
+            { emoji: '🕷️', animation: 'spider' }
+        ];
+        
+        const random = animations[Math.floor(Math.random() * animations.length)];
+        this.createAnimationElement(random.emoji, random.animation, 'wrong');
+    }
+    
+    createAnimationElement(emoji, animationClass, type) {
+        const element = document.createElement('div');
+        element.className = `random-animation ${animationClass}`;
+        element.textContent = emoji;
+        document.body.appendChild(element);
+        
+        setTimeout(() => {
+            element.remove();
+        }, 2000);
+    }
+    
     checkAnswer(selectedIndex) {
         const selectedCircle = this.answerCircles[selectedIndex];
         const selectedAnswer = parseInt(selectedCircle.querySelector('.answer-text').textContent);
         const { question, answer } = this.questions[this.currentQuestion];
         const isCorrect = selectedAnswer === this.currentCorrectAnswer;
+        
+        // Hide title balloons after first answer
+        if (this.currentQuestion === 0 && this.titleBalloons) {
+            this.titleBalloons.classList.add('float-away');
+        }
         
         // Store the answer for review
         this.roundAnswers.push({
@@ -230,6 +343,12 @@ class MathGame {
         
         // Update statistics
         this.statsManager.recordAnswer(question, isCorrect);
+        
+        // Update streak
+        this.updateStreak(isCorrect);
+        
+        // Play random animation
+        this.playRandomAnimation(isCorrect);
         
         // Disable clicking during animation
         this.answerCircles.forEach(circle => {
@@ -318,6 +437,9 @@ class MathGame {
         this.finalScoreElement.textContent = this.score;
         this.resultsScreen.classList.add('show');
         
+        // Record this game's score
+        this.statsManager.recordGameScore(this.score, this.totalQuestions);
+        
         // Update results title based on score
         const resultsTitle = document.querySelector('.results-title');
         if (this.score === 20) {
@@ -386,6 +508,9 @@ class MathGame {
         this.statsScreen.classList.add('show');
         
         const stats = this.statsManager.getStatistics();
+        
+        // Draw the scores chart
+        this.drawScoresChart(stats.scores);
         
         // Display most missed problems
         const missedStatsElement = document.getElementById('missed-stats');
@@ -461,8 +586,150 @@ class MathGame {
         `;
     }
     
+    drawScoresChart(scores) {
+        const canvas = document.getElementById('scores-chart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const container = canvas.parentElement;
+        
+        // Set canvas size
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        if (scores.length === 0) {
+            ctx.fillStyle = '#999';
+            ctx.font = '20px Comic Sans MS';
+            ctx.textAlign = 'center';
+            ctx.fillText('No game history yet. Play some rounds!', width / 2, height / 2);
+            return;
+        }
+        
+        // Calculate padding
+        const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        
+        // Calculate running average
+        const runningAvg = [];
+        let sum = 0;
+        scores.forEach((score, index) => {
+            sum += score.score;
+            runningAvg.push(sum / (index + 1));
+        });
+        
+        // Find max score for scaling
+        const maxScore = Math.max(...scores.map(s => s.score), ...runningAvg, 20);
+        const yScale = chartHeight / maxScore;
+        const xScale = chartWidth / Math.max(scores.length - 1, 1);
+        
+        // Draw grid lines
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            const y = padding.top + (chartHeight / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(padding.left + chartWidth, y);
+            ctx.stroke();
+            
+            // Y-axis labels
+            const value = Math.round(maxScore - (maxScore / 4) * i);
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Comic Sans MS';
+            ctx.textAlign = 'right';
+            ctx.fillText(value.toString(), padding.left - 10, y + 5);
+        }
+        
+        // Draw X-axis labels
+        ctx.fillStyle = '#666';
+        ctx.font = '12px Comic Sans MS';
+        ctx.textAlign = 'center';
+        scores.forEach((score, index) => {
+            if (scores.length <= 10 || index % Math.ceil(scores.length / 10) === 0) {
+                const x = padding.left + xScale * index;
+                ctx.fillText(`${index + 1}`, x, height - padding.bottom + 20);
+            }
+        });
+        
+        // Draw running average line
+        ctx.strokeStyle = '#f093fb';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        runningAvg.forEach((avg, index) => {
+            const x = padding.left + xScale * index;
+            const y = padding.top + chartHeight - (avg * yScale);
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+        
+        // Draw score line
+        ctx.strokeStyle = '#667eea';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        scores.forEach((score, index) => {
+            const x = padding.left + xScale * index;
+            const y = padding.top + chartHeight - (score.score * yScale);
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+        
+        // Draw score points
+        scores.forEach((score, index) => {
+            const x = padding.left + xScale * index;
+            const y = padding.top + chartHeight - (score.score * yScale);
+            
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        // Draw axis labels
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 14px Comic Sans MS';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Number', width / 2, height - 5);
+        
+        ctx.save();
+        ctx.translate(15, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Score', 0, 0);
+        ctx.restore();
+    }
+    
+    showStatsFromGame() {
+        // Show stats from the game screen (not results screen)
+        this.statsOpenedFromGame = true;
+        this.statsScreen.classList.add('show');
+        this.showStats();
+        
+        // Update button text
+        this.backFromStatsBtn.textContent = this.STATS_BTN_GAME_TEXT;
+    }
+    
     hideStats() {
         this.statsScreen.classList.remove('show');
+        
+        // Reset button text and flag
+        if (this.statsOpenedFromGame) {
+            this.backFromStatsBtn.textContent = this.STATS_BTN_RESULTS_TEXT;
+            this.statsOpenedFromGame = false;
+        }
     }
     
     clearStats() {
@@ -476,8 +743,22 @@ class MathGame {
         this.score = 0;
         this.currentQuestion = 0;
         this.roundAnswers = [];
+        this.streak = 0;
+        this.answersSinceLastAnimation = 0;
+        this.nextAnimationTrigger = this.getRandomAnimationTrigger();
         this.resultsScreen.classList.remove('show');
         this.scoreElement.textContent = '0';
+        
+        // Show title balloons again
+        if (this.titleBalloons) {
+            this.titleBalloons.classList.remove('float-away');
+        }
+        
+        // Reset heating meter
+        this.heatingMeterFill.style.height = '0%';
+        this.heatingMeterCount.textContent = '0';
+        this.heatingMeterFill.classList.remove('on-fire');
+        this.heatingMeterFire.classList.remove('active', 'mega-fire');
         
         // Generate new questions
         this.generateQuestions();
@@ -489,6 +770,7 @@ class MathGame {
 class StatisticsManager {
     constructor() {
         this.storageKey = 'mathGameStats';
+        this.scoresKey = 'mathGameScores';
         this.loadStats();
     }
     
@@ -499,10 +781,18 @@ class StatisticsManager {
         } else {
             this.stats = {};
         }
+        
+        const scoresStored = localStorage.getItem(this.scoresKey);
+        if (scoresStored) {
+            this.scores = JSON.parse(scoresStored);
+        } else {
+            this.scores = [];
+        }
     }
     
     saveStats() {
         localStorage.setItem(this.storageKey, JSON.stringify(this.stats));
+        localStorage.setItem(this.scoresKey, JSON.stringify(this.scores));
     }
     
     recordAnswer(problem, isCorrect) {
@@ -519,6 +809,23 @@ class StatisticsManager {
             this.stats[problem].correct++;
         } else {
             this.stats[problem].incorrect++;
+        }
+        
+        this.saveStats();
+    }
+    
+    recordGameScore(score, totalQuestions) {
+        const timestamp = Date.now();
+        this.scores.push({
+            score,
+            totalQuestions,
+            timestamp,
+            date: new Date(timestamp).toLocaleDateString()
+        });
+        
+        // Keep array at maximum of 20 games
+        if (this.scores.length > 20) {
+            this.scores = this.scores.slice(-20);
         }
         
         this.saveStats();
@@ -550,12 +857,14 @@ class StatisticsManager {
             mostMissed,
             mostCorrect,
             totalAttempts,
-            totalCorrect
+            totalCorrect,
+            scores: this.scores
         };
     }
     
     clearAll() {
         this.stats = {};
+        this.scores = [];
         this.saveStats();
     }
 }
