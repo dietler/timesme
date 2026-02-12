@@ -53,6 +53,13 @@ class MathGame {
         this.resultsCollectionBtn = document.getElementById('results-collection-btn');
         this.resultsCoinsEarned = document.getElementById('results-coins-earned');
         this.resultsWalletBalance = document.getElementById('results-wallet-balance');
+        this.headerWhiteboardBtn = document.getElementById('header-whiteboard-btn');
+        this.whiteboardOverlay = document.getElementById('whiteboard-overlay');
+        this.whiteboardCanvas = document.getElementById('whiteboard-canvas');
+        this.whiteboardCloseBtn = document.getElementById('whiteboard-close-btn');
+        this.whiteboardEraserBtn = document.getElementById('whiteboard-eraser-btn');
+        this.whiteboardQuestion = document.getElementById('whiteboard-question');
+        this.whiteboardAnswers = document.getElementById('whiteboard-answers');
         
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
@@ -63,6 +70,11 @@ class MathGame {
         
         // Initialize audio context for sound effects
         this.audioContext = null;
+        
+        // Whiteboard state
+        this.whiteboardCtx = null;
+        this.isDrawing = false;
+        this.whiteboardStates = {}; // Store whiteboard state for each question
         
         this.init();
     }
@@ -89,6 +101,12 @@ class MathGame {
         this.backFromCollectionBtn.addEventListener('click', () => this.hideCollection());
         this.resultsStoreBtn.addEventListener('click', () => this.showStore());
         this.resultsCollectionBtn.addEventListener('click', () => this.showCollection());
+        this.headerWhiteboardBtn.addEventListener('click', () => this.showWhiteboard());
+        this.whiteboardCloseBtn.addEventListener('click', () => this.hideWhiteboard());
+        this.whiteboardEraserBtn.addEventListener('click', () => this.clearWhiteboard());
+        
+        // Initialize whiteboard canvas
+        this.initWhiteboard();
         
         // Update wallet display
         this.updateWalletDisplay();
@@ -228,6 +246,14 @@ class MathGame {
         
         // Update progress
         this.progressElement.textContent = `${this.currentQuestion + 1}/20`;
+        
+        // Clear whiteboard for new question (if not already saved)
+        if (!this.whiteboardStates[this.currentQuestion]) {
+            // Only clear the canvas context if it exists
+            if (this.whiteboardCtx) {
+                this.whiteboardCtx.clearRect(0, 0, this.whiteboardCanvas.width, this.whiteboardCanvas.height);
+            }
+        }
     }
     
     generateAnswerOptions(correctAnswer) {
@@ -804,6 +830,12 @@ class MathGame {
         this.heatingMeterFill.classList.remove('on-fire');
         this.heatingMeterFire.classList.remove('active', 'mega-fire');
         
+        // Clear whiteboard states
+        this.whiteboardStates = {};
+        if (this.whiteboardCtx) {
+            this.whiteboardCtx.clearRect(0, 0, this.whiteboardCanvas.width, this.whiteboardCanvas.height);
+        }
+        
         // Generate new questions
         this.generateQuestions();
         this.displayQuestion();
@@ -965,6 +997,149 @@ class MathGame {
             el.innerHTML = `<span class="collection-emoji">${item.emoji}</span><span class="collection-name">${item.name}</span>`;
             this.collectionGrid.appendChild(el);
         });
+    }
+    
+    // Whiteboard methods
+    initWhiteboard() {
+        this.whiteboardCtx = this.whiteboardCanvas.getContext('2d');
+        this.whiteboardCtx.lineWidth = 3;
+        this.whiteboardCtx.lineCap = 'round';
+        this.whiteboardCtx.strokeStyle = '#333';
+        
+        // Mouse events
+        this.whiteboardCanvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+        this.whiteboardCanvas.addEventListener('mousemove', (e) => this.draw(e));
+        this.whiteboardCanvas.addEventListener('mouseup', () => this.stopDrawing());
+        this.whiteboardCanvas.addEventListener('mouseleave', () => this.stopDrawing());
+        
+        // Touch events
+        this.whiteboardCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.startDrawing(e.touches[0]);
+        });
+        this.whiteboardCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            this.draw(e.touches[0]);
+        });
+        this.whiteboardCanvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.stopDrawing();
+        });
+        
+        // Resize canvas
+        this.resizeCanvas();
+        window.addEventListener('resize', () => {
+            if (this.whiteboardOverlay.classList.contains('active')) {
+                this.resizeCanvas();
+            }
+        });
+    }
+    
+    resizeCanvas() {
+        // Save current drawing
+        const imageData = this.whiteboardCanvas.width > 0 && this.whiteboardCanvas.height > 0 ? 
+            this.whiteboardCtx.getImageData(0, 0, this.whiteboardCanvas.width, this.whiteboardCanvas.height) : null;
+        
+        // Resize canvas to match displayed size
+        const rect = this.whiteboardCanvas.getBoundingClientRect();
+        const oldWidth = this.whiteboardCanvas.width;
+        const oldHeight = this.whiteboardCanvas.height;
+        this.whiteboardCanvas.width = rect.width;
+        this.whiteboardCanvas.height = rect.height;
+        
+        // Restore context settings
+        this.whiteboardCtx.lineWidth = 3;
+        this.whiteboardCtx.lineCap = 'round';
+        this.whiteboardCtx.strokeStyle = '#333';
+        
+        // Restore drawing if exists and dimensions match
+        if (imageData && oldWidth === rect.width && oldHeight === rect.height) {
+            this.whiteboardCtx.putImageData(imageData, 0, 0);
+        }
+    }
+    
+    getCoordinates(e) {
+        const rect = this.whiteboardCanvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - rect.left) * (this.whiteboardCanvas.width / rect.width),
+            y: (e.clientY - rect.top) * (this.whiteboardCanvas.height / rect.height)
+        };
+    }
+    
+    startDrawing(e) {
+        this.isDrawing = true;
+        const coords = this.getCoordinates(e);
+        this.whiteboardCtx.beginPath();
+        this.whiteboardCtx.moveTo(coords.x, coords.y);
+    }
+    
+    draw(e) {
+        if (!this.isDrawing) return;
+        
+        const coords = this.getCoordinates(e);
+        this.whiteboardCtx.lineTo(coords.x, coords.y);
+        this.whiteboardCtx.stroke();
+    }
+    
+    stopDrawing() {
+        if (this.isDrawing) {
+            this.isDrawing = false;
+            // Save the current whiteboard state for this question
+            this.saveWhiteboardState();
+        }
+    }
+    
+    saveWhiteboardState() {
+        const imageData = this.whiteboardCtx.getImageData(0, 0, this.whiteboardCanvas.width, this.whiteboardCanvas.height);
+        this.whiteboardStates[this.currentQuestion] = imageData;
+    }
+    
+    restoreWhiteboardState() {
+        const savedState = this.whiteboardStates[this.currentQuestion];
+        if (savedState) {
+            // Only restore if canvas dimensions match saved image data
+            if (savedState.width === this.whiteboardCanvas.width && 
+                savedState.height === this.whiteboardCanvas.height) {
+                this.whiteboardCtx.putImageData(savedState, 0, 0);
+            }
+            // If dimensions don't match, the saved state becomes invalid and won't be restored
+        }
+    }
+    
+    showWhiteboard() {
+        // Update whiteboard with current question and answers
+        const { question } = this.questions[this.currentQuestion];
+        this.whiteboardQuestion.textContent = question;
+        
+        // Get current answer options from the answer circles
+        const answerTexts = Array.from(this.answerCircles).map(circle => 
+            circle.querySelector('.answer-text').textContent
+        );
+        
+        // Update whiteboard answers display
+        this.whiteboardAnswers.innerHTML = answerTexts.map(text => 
+            `<span class="whiteboard-answer">${text}</span>`
+        ).join('');
+        
+        // Show overlay
+        this.whiteboardOverlay.classList.add('active');
+        
+        // Wait for overlay animation to complete before resizing canvas
+        const CANVAS_RENDER_DELAY = 50; // Allow time for CSS animation and DOM rendering
+        setTimeout(() => {
+            this.resizeCanvas();
+            this.restoreWhiteboardState();
+        }, CANVAS_RENDER_DELAY);
+    }
+    
+    hideWhiteboard() {
+        this.saveWhiteboardState();
+        this.whiteboardOverlay.classList.remove('active');
+    }
+    
+    clearWhiteboard() {
+        this.whiteboardCtx.clearRect(0, 0, this.whiteboardCanvas.width, this.whiteboardCanvas.height);
+        this.saveWhiteboardState();
     }
 }
 
