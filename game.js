@@ -1037,11 +1037,13 @@ class MathGame {
     
     resizeCanvas() {
         // Save current drawing
-        const imageData = this.whiteboardCanvas.width > 0 ? 
+        const imageData = this.whiteboardCanvas.width > 0 && this.whiteboardCanvas.height > 0 ? 
             this.whiteboardCtx.getImageData(0, 0, this.whiteboardCanvas.width, this.whiteboardCanvas.height) : null;
         
         // Resize canvas to match displayed size
         const rect = this.whiteboardCanvas.getBoundingClientRect();
+        const oldWidth = this.whiteboardCanvas.width;
+        const oldHeight = this.whiteboardCanvas.height;
         this.whiteboardCanvas.width = rect.width;
         this.whiteboardCanvas.height = rect.height;
         
@@ -1050,8 +1052,8 @@ class MathGame {
         this.whiteboardCtx.lineCap = 'round';
         this.whiteboardCtx.strokeStyle = '#333';
         
-        // Restore drawing if exists
-        if (imageData) {
+        // Restore drawing if exists and dimensions match
+        if (imageData && oldWidth === rect.width && oldHeight === rect.height) {
             this.whiteboardCtx.putImageData(imageData, 0, 0);
         }
     }
@@ -1095,7 +1097,12 @@ class MathGame {
     restoreWhiteboardState() {
         const savedState = this.whiteboardStates[this.currentQuestion];
         if (savedState) {
-            this.whiteboardCtx.putImageData(savedState, 0, 0);
+            // Only restore if canvas dimensions match saved image data
+            if (savedState.width === this.whiteboardCanvas.width && 
+                savedState.height === this.whiteboardCanvas.height) {
+                this.whiteboardCtx.putImageData(savedState, 0, 0);
+            }
+            // If dimensions don't match, the saved state becomes invalid and won't be restored
         }
     }
     
@@ -1117,11 +1124,12 @@ class MathGame {
         // Show overlay
         this.whiteboardOverlay.classList.add('active');
         
-        // Resize and restore state
+        // Wait for overlay animation to complete before resizing canvas
+        const CANVAS_RENDER_DELAY = 50; // Allow time for CSS animation and DOM rendering
         setTimeout(() => {
             this.resizeCanvas();
             this.restoreWhiteboardState();
-        }, 50);
+        }, CANVAS_RENDER_DELAY);
     }
     
     hideWhiteboard() {
