@@ -884,8 +884,8 @@ class MathGame {
     
     renderStoreItems() {
         this.storeGrid.innerHTML = '';
-        const tiers = ['cheap', 'medium', 'expensive', 'legendary'];
-        const tierLabels = { cheap: '🟢 Common', medium: '🔵 Cool', expensive: '🟣 Premium', legendary: '🟡 Legendary' };
+        const tiers = ['cheap', 'medium', 'expensive', 'legendary', 'epic', 'unreal', 'secret'];
+        const tierLabels = { cheap: '🟢 Common', medium: '🔵 Cool', expensive: '🟣 Premium', legendary: '🟡 Legendary', epic: '🔶 Epic', unreal: '💜 Unreal', secret: '🌑 Secret' };
         
         tiers.forEach(tier => {
             const tierHeader = document.createElement('div');
@@ -898,16 +898,21 @@ class MathGame {
                 const card = document.createElement('div');
                 const owned = this.storeManager.isOwned(item.id);
                 const canAfford = this.walletManager.getBalance() >= item.price;
+                const isSecret = tier === 'secret';
                 card.className = 'store-item' + (owned ? ' owned' : '') + (!canAfford && !owned ? ' cant-afford' : '');
                 card.setAttribute('data-tier', tier);
                 
+                // For secret tier items that are not owned, hide emoji and name
+                const displayEmoji = (isSecret && !owned) ? '❓' : item.emoji;
+                const displayName = (isSecret && !owned) ? '???' : item.name;
+                
                 card.innerHTML = `
-                    <div class="store-item-emoji">${item.emoji}</div>
-                    <div class="store-item-name">${item.name}</div>
+                    <div class="store-item-emoji">${displayEmoji}</div>
+                    <div class="store-item-name">${displayName}</div>
                     <div class="store-item-price">${item.price} 🪙</div>
                     ${owned
                         ? '<div class="store-item-owned">Owned ✓</div>'
-                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!" aria-label="' + item.name + ' - Not enough coins"' : ''}>${canAfford ? 'Buy' : '🔒'}</button>`
+                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!"' : ''} aria-label="${(isSecret ? 'Secret Item' : item.name)}${!canAfford ? ' - Not enough coins' : ''}">${canAfford ? 'Buy' : '🔒'}</button>`
                     }
                 `;
                 
@@ -1038,6 +1043,28 @@ class StoreManager {
             { id: 'dizzy', emoji: '💫', name: 'Dizzy Star', price: 170, tier: 'legendary' },
             { id: 'comet', emoji: '☄️', name: 'Comet Chaser', price: 180, tier: 'legendary' },
             { id: 'shooting', emoji: '🌠', name: 'Wish Maker', price: 200, tier: 'legendary' },
+            // Epic (250-400 coins)
+            { id: 'epic_unicorn', emoji: '🦄', name: 'Epic Unicorn', price: 250, tier: 'epic' },
+            { id: 'epic_phoenix', emoji: '🔥', name: 'Phoenix Fire', price: 280, tier: 'epic' },
+            { id: 'epic_wizard', emoji: '🧙', name: 'Grand Wizard', price: 300, tier: 'epic' },
+            { id: 'epic_dragon', emoji: '🐲', name: 'Dragon King', price: 320, tier: 'epic' },
+            { id: 'epic_sun', emoji: '☀️', name: 'Solar Power', price: 350, tier: 'epic' },
+            { id: 'epic_moon', emoji: '🌙', name: 'Lunar Magic', price: 380, tier: 'epic' },
+            { id: 'epic_star', emoji: '⭐', name: 'Star Power', price: 400, tier: 'epic' },
+            // Unreal (500-800 coins)
+            { id: 'unreal_infinity', emoji: '♾️', name: 'Infinity Mind', price: 500, tier: 'unreal' },
+            { id: 'unreal_atom', emoji: '⚛️', name: 'Atomic Brain', price: 550, tier: 'unreal' },
+            { id: 'unreal_dna', emoji: '🧬', name: 'DNA Master', price: 600, tier: 'unreal' },
+            { id: 'unreal_black_hole', emoji: '🕳️', name: 'Black Hole', price: 650, tier: 'unreal' },
+            { id: 'unreal_telescope', emoji: '🔭', name: 'Star Gazer', price: 700, tier: 'unreal' },
+            { id: 'unreal_satellite', emoji: '🛰️', name: 'Space Station', price: 750, tier: 'unreal' },
+            { id: 'unreal_cosmos', emoji: '🌌', name: 'Cosmos Lord', price: 800, tier: 'unreal' },
+            // Secret (1000+ coins)
+            { id: 'precision_master', emoji: '🎯', name: 'Precision Master', price: 1000, tier: 'secret' },
+            { id: 'perfect_score', emoji: '💯', name: 'Perfect Score', price: 1200, tier: 'secret' },
+            { id: 'ultimate_star', emoji: '🌟', name: 'Ultimate Star', price: 1500, tier: 'secret' },
+            { id: 'all_seeing_eye', emoji: '👁️', name: 'All Seeing Eye', price: 2000, tier: 'secret' },
+            { id: 'master_artist', emoji: '🎨', name: 'Master Artist', price: 2500, tier: 'secret' },
         ];
     }
 

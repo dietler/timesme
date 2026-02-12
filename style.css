@@ -1949,6 +1949,9 @@ body::after {
 .store-tier-header.tier-medium { background: linear-gradient(135deg, #cce5ff, #b8daff); color: #004085; }
 .store-tier-header.tier-expensive { background: linear-gradient(135deg, #e2d5f0, #d4c4e3); color: #4a1a7a; }
 .store-tier-header.tier-legendary { background: linear-gradient(135deg, #fff3cd, #ffeeba); color: #856404; }
+.store-tier-header.tier-epic { background: linear-gradient(135deg, #ffccbc, #ff8a65); color: #bf360c; }
+.store-tier-header.tier-unreal { background: linear-gradient(135deg, #e1bee7, #ce93d8); color: #4a148c; }
+.store-tier-header.tier-secret { background: linear-gradient(135deg, #424242, #212121); color: #ffd700; }
 
 .store-item {
     background: #f8f9fa;
