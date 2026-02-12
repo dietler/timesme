@@ -700,7 +700,7 @@ body::after {
 
 @keyframes catPupilDilate {
     0%, 100% { transform: scaleX(1); }
-    50% { transform: scaleX(1.3); }
+    50% { transform: scaleX(1.25); }
 }
 
 .cat-whisker {
