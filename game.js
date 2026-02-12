@@ -907,7 +907,7 @@ class MathGame {
                     <div class="store-item-price">${item.price} 🪙</div>
                     ${owned
                         ? '<div class="store-item-owned">Owned ✓</div>'
-                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!"' : ''}>${canAfford ? 'Buy' : '🔒'}</button>`
+                        : `<button class="store-buy-btn" ${!canAfford ? 'disabled title="Not enough coins!" aria-label="' + item.name + ' - Not enough coins"' : ''}>${canAfford ? 'Buy' : '🔒'}</button>`
                     }
                 `;
                 
@@ -967,7 +967,7 @@ class MathGame {
 class WalletManager {
     constructor() {
         this.storageKey = 'mathGameWallet';
-        this.balance = parseInt(localStorage.getItem(this.storageKey)) || 0;
+        this.balance = parseInt(localStorage.getItem(this.storageKey), 10) || 0;
     }
 
     getBalance() {
