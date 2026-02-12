@@ -6,6 +6,9 @@ class MathGame {
         this.questions = [];
         this.currentCorrectAnswer = 0;
         this.roundAnswers = []; // Store all answers from current round
+        this.streak = 0; // Track consecutive correct answers
+        this.answersSinceLastAnimation = 0; // Track answers for random animations
+        this.nextAnimationTrigger = this.getRandomAnimationTrigger(); // When to show next animation
         
         // DOM elements
         this.scoreElement = document.getElementById('score');
@@ -23,6 +26,10 @@ class MathGame {
         this.backFromReviewBtn = document.getElementById('back-from-review-btn');
         this.backFromStatsBtn = document.getElementById('back-from-stats-btn');
         this.clearStatsBtn = document.getElementById('clear-stats-btn');
+        this.headerStatsBtn = document.getElementById('header-stats-btn');
+        this.heatingMeterFill = document.getElementById('heating-meter-fill');
+        this.heatingMeterFire = document.getElementById('heating-meter-fire');
+        this.heatingMeterCount = document.getElementById('heating-meter-count');
         
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
@@ -48,6 +55,7 @@ class MathGame {
         this.backFromReviewBtn.addEventListener('click', () => this.hideReview());
         this.backFromStatsBtn.addEventListener('click', () => this.hideStats());
         this.clearStatsBtn.addEventListener('click', () => this.clearStats());
+        this.headerStatsBtn.addEventListener('click', () => this.showStatsFromGame());
         
         // Display first question
         this.displayQuestion();
@@ -214,6 +222,100 @@ class MathGame {
         return shuffled;
     }
     
+    getRandomAnimationTrigger() {
+        // Random number between 3 and 8
+        return Math.floor(Math.random() * 6) + 3;
+    }
+    
+    updateStreak(isCorrect) {
+        if (isCorrect) {
+            this.streak++;
+        } else {
+            this.streak = 0;
+        }
+        
+        // Update heating meter
+        const percentage = Math.min((this.streak / 20) * 100, 100);
+        this.heatingMeterFill.style.height = percentage + '%';
+        this.heatingMeterCount.textContent = this.streak;
+        
+        // Add fire effect at 10+ streak
+        if (this.streak >= 10) {
+            this.heatingMeterFill.classList.add('on-fire');
+            this.heatingMeterFire.classList.add('active');
+            
+            // Mega fire at 15+
+            if (this.streak >= 15) {
+                this.heatingMeterFire.classList.add('mega-fire');
+            }
+        } else {
+            this.heatingMeterFill.classList.remove('on-fire');
+            this.heatingMeterFire.classList.remove('active', 'mega-fire');
+        }
+    }
+    
+    playRandomAnimation(isCorrect) {
+        this.answersSinceLastAnimation++;
+        
+        if (this.answersSinceLastAnimation >= this.nextAnimationTrigger) {
+            this.answersSinceLastAnimation = 0;
+            this.nextAnimationTrigger = this.getRandomAnimationTrigger();
+            
+            if (isCorrect) {
+                this.playCorrectAnimation();
+            } else {
+                this.playWrongAnimation();
+            }
+        }
+    }
+    
+    playCorrectAnimation() {
+        const animations = [
+            { emoji: '❤️', animation: 'heartZoom' },
+            { emoji: '⭐', animation: 'starSpin' },
+            { emoji: '🎈', animation: 'balloonFloat' },
+            { emoji: '🌟', animation: 'sparkle' },
+            { emoji: '🦄', animation: 'unicornGallop' },
+            { emoji: '🌈', animation: 'rainbowSlide' },
+            { emoji: '🎵', animation: 'musicNote' },
+            { emoji: '✨', animation: 'glitter' },
+            { emoji: '🎁', animation: 'giftBox' },
+            { emoji: '🌺', animation: 'flowerBloom' }
+        ];
+        
+        const random = animations[Math.floor(Math.random() * animations.length)];
+        this.createAnimationElement(random.emoji, random.animation, 'correct');
+    }
+    
+    playWrongAnimation() {
+        const animations = [
+            { emoji: '🐍', animation: 'snakeBite' },
+            { emoji: '⛈️', animation: 'stormCloud' },
+            { emoji: '💥', animation: 'explosion' },
+            { emoji: '🌪️', animation: 'tornado' },
+            { emoji: '👻', animation: 'ghost' },
+            { emoji: '🦇', animation: 'batFly' },
+            { emoji: '💔', animation: 'brokenHeart' },
+            { emoji: '☔', animation: 'rain' },
+            { emoji: '🌩️', animation: 'lightning' },
+            { emoji: '🕷️', animation: 'spider' }
+        ];
+        
+        const random = animations[Math.floor(Math.random() * animations.length)];
+        this.createAnimationElement(random.emoji, random.animation, 'wrong');
+    }
+    
+    createAnimationElement(emoji, animationClass, type) {
+        const element = document.createElement('div');
+        element.className = `random-animation ${animationClass}`;
+        element.textContent = emoji;
+        document.body.appendChild(element);
+        
+        setTimeout(() => {
+            element.remove();
+        }, 2000);
+    }
+    
     checkAnswer(selectedIndex) {
         const selectedCircle = this.answerCircles[selectedIndex];
         const selectedAnswer = parseInt(selectedCircle.querySelector('.answer-text').textContent);
@@ -230,6 +332,12 @@ class MathGame {
         
         // Update statistics
         this.statsManager.recordAnswer(question, isCorrect);
+        
+        // Update streak
+        this.updateStreak(isCorrect);
+        
+        // Play random animation
+        this.playRandomAnimation(isCorrect);
         
         // Disable clicking during animation
         this.answerCircles.forEach(circle => {
@@ -461,6 +569,21 @@ class MathGame {
         `;
     }
     
+    showStatsFromGame() {
+        // Show stats from the game screen (not results screen)
+        this.statsScreen.classList.add('show');
+        this.showStats();
+        
+        // Change back button behavior
+        const backBtn = this.backFromStatsBtn;
+        backBtn.textContent = 'Back to Game 🎮';
+        backBtn.onclick = () => {
+            this.statsScreen.classList.remove('show');
+            backBtn.textContent = 'Back to Results';
+            backBtn.onclick = () => this.hideStats();
+        };
+    }
+    
     hideStats() {
         this.statsScreen.classList.remove('show');
     }
@@ -476,8 +599,17 @@ class MathGame {
         this.score = 0;
         this.currentQuestion = 0;
         this.roundAnswers = [];
+        this.streak = 0;
+        this.answersSinceLastAnimation = 0;
+        this.nextAnimationTrigger = this.getRandomAnimationTrigger();
         this.resultsScreen.classList.remove('show');
         this.scoreElement.textContent = '0';
+        
+        // Reset heating meter
+        this.heatingMeterFill.style.height = '0%';
+        this.heatingMeterCount.textContent = '0';
+        this.heatingMeterFill.classList.remove('on-fire');
+        this.heatingMeterFire.classList.remove('active', 'mega-fire');
         
         // Generate new questions
         this.generateQuestions();

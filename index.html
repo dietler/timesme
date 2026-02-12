@@ -18,12 +18,23 @@
     <div class="squishmallow squishmallow-6">🦊</div>
     
     <div class="game-container">
+        <!-- Heating Up Meter -->
+        <div class="heating-meter" id="heating-meter">
+            <div class="heating-meter-label">🔥 STREAK</div>
+            <div class="heating-meter-bar">
+                <div class="heating-meter-fill" id="heating-meter-fill"></div>
+                <div class="heating-meter-fire" id="heating-meter-fire">🔥</div>
+            </div>
+            <div class="heating-meter-count" id="heating-meter-count">0</div>
+        </div>
+        
         <!-- Header with score and progress -->
         <div class="header">
             <div class="score-container">
                 <div class="score-label">Score</div>
                 <div class="score" id="score">0</div>
             </div>
+            <button class="header-stats-btn" id="header-stats-btn" title="View Statistics">📊</button>
             <div class="progress-container">
                 <div class="progress-label">Question</div>
                 <div class="progress" id="progress">1/20</div>
@@ -40,15 +51,39 @@
         <!-- Answer circles -->
         <div class="answers-container">
             <div class="answer-circle" data-answer="0">
+                <div class="character-face face-bear">
+                    <div class="ears">
+                        <div class="ear ear-left">🐻</div>
+                        <div class="ear ear-right">🐻</div>
+                    </div>
+                </div>
                 <span class="answer-text">42</span>
             </div>
             <div class="answer-circle" data-answer="1">
+                <div class="character-face face-cat">
+                    <div class="ears">
+                        <div class="ear ear-left">😺</div>
+                        <div class="ear ear-right">😺</div>
+                    </div>
+                </div>
                 <span class="answer-text">56</span>
             </div>
             <div class="answer-circle" data-answer="2">
+                <div class="character-face face-bunny">
+                    <div class="ears">
+                        <div class="ear ear-left">🐰</div>
+                        <div class="ear ear-right">🐰</div>
+                    </div>
+                </div>
                 <span class="answer-text">48</span>
             </div>
             <div class="answer-circle" data-answer="3">
+                <div class="character-face face-frog">
+                    <div class="eyes">
+                        <div class="eye">👁️</div>
+                        <div class="eye">👁️</div>
+                    </div>
+                </div>
                 <span class="answer-text">63</span>
             </div>
         </div>
