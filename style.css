@@ -289,7 +289,8 @@ body::after {
 
 .heating-meter-count {
     font-size: 28px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     text-align: center;
     color: #764ba2;
     margin-top: 15px;
@@ -335,7 +336,8 @@ body::after {
 
 .score, .progress {
     font-size: 42px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #764ba2;
     margin-top: 5px;
 }
@@ -373,7 +375,8 @@ body::after {
 
 .collection-count {
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #764ba2;
 }
 
@@ -397,7 +400,8 @@ body::after {
 
 .wallet-amount {
     font-size: 24px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #d4a017;
 }
 
@@ -463,7 +467,8 @@ body::after {
 
 .question {
     font-size: 72px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #333;
     letter-spacing: 3px;
 }
@@ -533,7 +538,8 @@ body::after {
 
 .answer-text {
     font-size: 48px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     z-index: 2;
@@ -939,7 +945,8 @@ body::after {
 
 .final-score-value {
     font-size: 120px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -948,6 +955,8 @@ body::after {
 
 .final-score-max {
     font-size: 32px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #999;
     margin-top: 10px;
 }
@@ -1066,7 +1075,8 @@ body::after {
 
 .review-question {
     font-size: 32px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #333;
 }
 
@@ -1075,6 +1085,8 @@ body::after {
     align-items: center;
     gap: 15px;
     font-size: 24px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
 }
 
 .review-status {
@@ -1174,7 +1186,8 @@ body::after {
 
 .stat-problem {
     font-size: 24px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #333;
 }
 
@@ -1183,6 +1196,8 @@ body::after {
     align-items: center;
     gap: 10px;
     font-size: 20px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #666;
 }
 
@@ -1224,7 +1239,8 @@ body::after {
 
 .overall-stat-value {
     font-size: 48px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1824,7 +1840,8 @@ body::after {
 .results-coins-value {
     display: block;
     font-size: 28px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #d4a017;
     margin-top: 4px;
 }
@@ -1924,7 +1941,8 @@ body::after {
 }
 
 .store-wallet-amount {
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     color: #d4a017;
 }
 
@@ -2004,7 +2022,8 @@ body::after {
 .store-item-price {
     font-size: 14px;
     color: #d4a017;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     margin-bottom: 8px;
 }
 
@@ -2083,7 +2102,8 @@ body::after {
     text-align: center;
     font-size: 22px;
     color: #764ba2;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     margin-bottom: 20px;
 }
 
