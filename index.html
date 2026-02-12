@@ -41,7 +41,13 @@
                 <div class="score-label">Score</div>
                 <div class="score" id="score">0</div>
             </div>
-            <button class="header-stats-btn" id="header-stats-btn" title="View Statistics">📊</button>
+            <div class="wallet-display" id="wallet-display" title="Your Coins">
+                <span class="wallet-icon">🪙</span>
+                <span class="wallet-amount" id="wallet-amount">0</span>
+            </div>
+            <button class="header-btn header-store-btn" id="header-store-btn" title="Open Store">🏪</button>
+            <button class="header-btn header-collection-btn" id="header-collection-btn" title="Trophy Case">🏆 <span class="collection-count" id="header-collection-count">0</span></button>
+            <button class="header-btn header-stats-btn" id="header-stats-btn" title="View Statistics">📊</button>
             <div class="progress-container">
                 <div class="progress-label">Question</div>
                 <div class="progress" id="progress">1/20</div>
@@ -205,9 +211,21 @@
                     <div class="final-score-value" id="final-score">0</div>
                     <div class="final-score-max">out of 20</div>
                 </div>
+                <div class="results-coins">
+                    <div class="results-coins-earned">
+                        <span class="results-coins-label">Coins Earned</span>
+                        <span class="results-coins-value" id="results-coins-earned">0 🪙</span>
+                    </div>
+                    <div class="results-coins-total">
+                        <span class="results-coins-label">Wallet Balance</span>
+                        <span class="results-coins-value" id="results-wallet-balance">0 🪙</span>
+                    </div>
+                </div>
                 <div class="results-buttons">
                     <button class="review-btn" id="review-btn">Review Answers 📝</button>
                     <button class="stats-btn" id="stats-btn">View Statistics 📊</button>
+                    <button class="store-btn" id="results-store-btn">Visit Store 🏪</button>
+                    <button class="collection-btn" id="results-collection-btn">Trophy Case 🏆</button>
                     <button class="play-again-btn" id="play-again-btn">Play Again! 🎮</button>
                 </div>
             </div>
@@ -254,6 +272,29 @@
                     <button class="clear-stats-btn" id="clear-stats-btn">Clear All Stats 🗑️</button>
                     <button class="back-btn" id="back-from-stats-btn">Back to Results</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Store screen (hidden initially) -->
+        <div class="store-screen" id="store-screen">
+            <div class="store-content">
+                <h2 class="store-title">Emoji Store 🏪</h2>
+                <div class="store-wallet">
+                    <span class="store-wallet-icon">🪙</span>
+                    <span class="store-wallet-amount" id="store-wallet-amount">0</span>
+                </div>
+                <div class="store-grid" id="store-grid"></div>
+                <button class="back-btn" id="back-from-store-btn">Back</button>
+            </div>
+        </div>
+
+        <!-- Collection/Trophy Case screen (hidden initially) -->
+        <div class="collection-screen" id="collection-screen">
+            <div class="collection-content">
+                <h2 class="collection-title">Trophy Case 🏆</h2>
+                <div class="collection-progress" id="collection-progress">0/40 collected</div>
+                <div class="collection-grid" id="collection-grid"></div>
+                <button class="back-btn" id="back-from-collection-btn">Back</button>
             </div>
         </div>
 
