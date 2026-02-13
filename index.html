@@ -22,14 +22,14 @@
     
     <div class="game-container">
         
-        <!-- Heating Up Meter -->
+        <!-- Heating Up Meter (horizontal) -->
         <div class="heating-meter" id="heating-meter">
-            <div class="heating-meter-label">🔥 STREAK</div>
+            <div class="heating-meter-label">🔥</div>
             <div class="heating-meter-bar">
                 <div class="heating-meter-fill" id="heating-meter-fill"></div>
-                <div class="heating-meter-fire" id="heating-meter-fire">🔥</div>
             </div>
             <div class="heating-meter-count" id="heating-meter-count">0</div>
+            <div class="heating-meter-fire" id="heating-meter-fire">🔥</div>
         </div>
         
         <!-- Header with score and progress -->
@@ -42,15 +42,22 @@
                 <span class="wallet-icon">🪙</span>
                 <span class="wallet-amount" id="wallet-amount">0</span>
             </div>
-            <button class="header-btn header-store-btn" id="header-store-btn" title="Open Store">🏪</button>
-            <button class="header-btn header-collection-btn" id="header-collection-btn" title="Trophy Case">🏆 <span class="collection-count" id="header-collection-count">0</span></button>
-            <button class="header-btn header-stats-btn" id="header-stats-btn" title="View Statistics">📊</button>
-            <button class="header-btn header-whiteboard-btn" id="header-whiteboard-btn" title="Open Whiteboard">🖍️</button>
+            <div class="header-menu-wrapper">
+                <button class="header-btn header-menu-btn" id="header-menu-btn" title="Menu">☰</button>
+                <div class="header-menu-popup" id="header-menu-popup">
+                    <button class="menu-popup-btn" id="header-store-btn" title="Open Store">🏪 Store</button>
+                    <button class="menu-popup-btn" id="header-collection-btn" title="Trophy Case">🏆 Trophies <span class="collection-count" id="header-collection-count">0</span></button>
+                    <button class="menu-popup-btn" id="header-stats-btn" title="View Statistics">📊 Stats</button>
+                </div>
+            </div>
             <div class="progress-container">
                 <div class="progress-label">Question</div>
                 <div class="progress" id="progress">1/20</div>
             </div>
         </div>
+
+        <!-- Floating whiteboard button -->
+        <button class="floating-whiteboard-btn" id="header-whiteboard-btn" title="Open Whiteboard">🖍️</button>
 
         <!-- Main question area -->
         <div class="question-area">
