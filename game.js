@@ -1392,7 +1392,7 @@ class MathGame {
                     video.srcObject = stream;
                 })
                 .catch(() => {
-                    overlay.querySelector('.photo-capture-title').textContent = '⚠️ Camera not available';
+                    overlay.querySelector('.photo-capture-title').textContent = '⚠️ Camera not available. Please allow camera access in your browser settings.';
                     snapBtn.style.display = 'none';
                 });
         };
@@ -1410,9 +1410,18 @@ class MathGame {
         };
         
         snapBtn.addEventListener('click', () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            // Scale down large images to keep localStorage usage reasonable
+            const maxDim = 1280;
+            let w = video.videoWidth;
+            let h = video.videoHeight;
+            if (w > maxDim || h > maxDim) {
+                const scale = maxDim / Math.max(w, h);
+                w = Math.round(w * scale);
+                h = Math.round(h * scale);
+            }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(video, 0, 0, w, h);
             video.style.display = 'none';
             canvas.style.display = 'block';
             snapBtn.style.display = 'none';
@@ -1431,8 +1440,13 @@ class MathGame {
         });
         
         useBtn.addEventListener('click', () => {
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-            localStorage.setItem('mathGamePhotoBackground', dataUrl);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            try {
+                localStorage.setItem('mathGamePhotoBackground', dataUrl);
+            } catch (e) {
+                overlay.querySelector('.photo-capture-title').textContent = '⚠️ Photo too large to save. Try a simpler scene!';
+                return;
+            }
             cleanup();
             this.applyPhotoBackground();
         });
