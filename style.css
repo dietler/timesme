@@ -955,6 +955,80 @@ body::after {
     animation: scoreUp 0.5s ease;
 }
 
+/* Number Pad (Super Score Mode) */
+.number-pad-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 30px 20px 10px;
+    animation: slideUp 0.6s ease-out;
+}
+
+.number-pad-container.active {
+    display: flex;
+}
+
+.number-pad-display {
+    font-size: 72px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    background: white;
+    border: 4px solid #f093fb;
+    border-radius: 20px;
+    padding: 20px 40px;
+    min-width: 200px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.number-pad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    max-width: 400px;
+}
+
+.number-pad-btn {
+    aspect-ratio: 1;
+    font-size: 36px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    transition: all 0.2s ease;
+    min-width: 80px;
+    min-height: 80px;
+}
+
+.number-pad-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.number-pad-btn:active {
+    transform: scale(0.95);
+}
+
+.number-pad-btn-clear {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    font-size: 18px;
+}
+
+.number-pad-btn-submit {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    font-size: 48px;
+}
+
 /* Results Screen */
 .results-screen {
     position: absolute;

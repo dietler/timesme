@@ -11,6 +11,8 @@ class MathGame {
         this.nextAnimationTrigger = this.getRandomAnimationTrigger(); // When to show next animation
         this.statsOpenedFromGame = false; // Track where stats was opened from
         this.coinsEarnedThisRound = 0; // Track coins earned in current round
+        this.isSuperScoreMode = false; // Track if Super Score Mode is active
+        this.numberPadInput = ''; // Store current number pad input
         
         // Button text constants
         this.STATS_BTN_GAME_TEXT = 'Back to Game 🎮';
@@ -62,6 +64,10 @@ class MathGame {
         this.whiteboardEraserBtn = document.getElementById('whiteboard-eraser-btn');
         this.whiteboardQuestion = document.getElementById('whiteboard-question');
         this.whiteboardAnswers = document.getElementById('whiteboard-answers');
+        this.modeToggleBtn = document.getElementById('mode-toggle-btn');
+        this.numberPadContainer = document.getElementById('number-pad-container');
+        this.numberPadDisplay = document.getElementById('number-pad-display');
+        this.answersContainer = document.querySelector('.answers-container');
         
         // Initialize statistics manager
         this.statsManager = new StatisticsManager();
@@ -107,6 +113,12 @@ class MathGame {
         this.headerWhiteboardBtn.addEventListener('click', () => this.showWhiteboard());
         this.whiteboardCloseBtn.addEventListener('click', () => this.hideWhiteboard());
         this.whiteboardEraserBtn.addEventListener('click', () => this.clearWhiteboard());
+        
+        // Mode toggle
+        this.modeToggleBtn.addEventListener('click', () => this.toggleMode());
+        
+        // Number pad buttons
+        this.setupNumberPad();
         
         // Menu toggle
         this.headerMenuBtn.addEventListener('click', (e) => {
@@ -249,23 +261,30 @@ class MathGame {
         this.questionElement.textContent = question;
         this.currentCorrectAnswer = answer;
         
-        // Generate answer options
-        const answers = this.generateAnswerOptions(answer);
-        
-        // Update answer circles
-        this.answerCircles.forEach((circle, index) => {
-            const answerText = circle.querySelector('.answer-text');
-            answerText.textContent = answers[index];
+        // Update answer interface based on mode
+        if (this.isSuperScoreMode) {
+            // Reset number pad input
+            this.numberPadInput = '';
+            this.updateNumberPadDisplay();
+        } else {
+            // Generate answer options
+            const answers = this.generateAnswerOptions(answer);
             
-            // Reset classes
-            circle.classList.remove('correct', 'wrong');
-            
-            // Add entrance animation
-            circle.style.animation = 'none';
-            setTimeout(() => {
-                circle.style.animation = `slideUp 0.6s ease-out ${index * 0.1}s both`;
-            }, 10);
-        });
+            // Update answer circles
+            this.answerCircles.forEach((circle, index) => {
+                const answerText = circle.querySelector('.answer-text');
+                answerText.textContent = answers[index];
+                
+                // Reset classes
+                circle.classList.remove('correct', 'wrong');
+                
+                // Add entrance animation
+                circle.style.animation = 'none';
+                setTimeout(() => {
+                    circle.style.animation = `slideUp 0.6s ease-out ${index * 0.1}s both`;
+                }, 10);
+            });
+        }
         
         // Update progress
         this.progressElement.textContent = `${this.currentQuestion + 1}/20`;
@@ -306,6 +325,148 @@ class MathGame {
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
         return shuffled;
+    }
+    
+    toggleMode() {
+        this.isSuperScoreMode = !this.isSuperScoreMode;
+        
+        // Update button text
+        if (this.isSuperScoreMode) {
+            this.modeToggleBtn.textContent = '⚡ Super Score Mode (2x)';
+            this.modeToggleBtn.style.background = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
+        } else {
+            this.modeToggleBtn.textContent = '⚡ Normal Mode';
+            this.modeToggleBtn.style.background = '';
+        }
+        
+        // Update UI to show/hide number pad or answer circles
+        this.updateAnswerInterface();
+    }
+    
+    updateAnswerInterface() {
+        if (this.isSuperScoreMode) {
+            // Show number pad, hide answer circles
+            this.answersContainer.style.display = 'none';
+            this.numberPadContainer.classList.add('active');
+            this.numberPadInput = '';
+            this.updateNumberPadDisplay();
+        } else {
+            // Show answer circles, hide number pad
+            this.answersContainer.style.display = 'grid';
+            this.numberPadContainer.classList.remove('active');
+        }
+    }
+    
+    setupNumberPad() {
+        const buttons = this.numberPadContainer.querySelectorAll('.number-pad-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const value = btn.dataset.value;
+                this.handleNumberPadInput(value);
+            });
+        });
+    }
+    
+    handleNumberPadInput(value) {
+        if (value === 'clear') {
+            this.numberPadInput = '';
+            this.updateNumberPadDisplay();
+        } else if (value === 'submit') {
+            if (this.numberPadInput !== '') {
+                this.checkNumberPadAnswer(parseInt(this.numberPadInput));
+                this.numberPadInput = '';
+                this.updateNumberPadDisplay();
+            }
+        } else {
+            // Limit input to 3 digits (max answer is 144)
+            if (this.numberPadInput.length < 3) {
+                this.numberPadInput += value;
+                this.updateNumberPadDisplay();
+            }
+        }
+    }
+    
+    updateNumberPadDisplay() {
+        this.numberPadDisplay.textContent = this.numberPadInput || '_';
+    }
+    
+    checkNumberPadAnswer(userAnswer) {
+        const { question, answer } = this.questions[this.currentQuestion];
+        const isCorrect = userAnswer === this.currentCorrectAnswer;
+        
+        // Hide title balloons after first answer
+        if (this.currentQuestion === 0 && this.titleBalloons) {
+            this.titleBalloons.classList.add('float-away');
+        }
+        
+        // Store the answer for review
+        this.roundAnswers.push({
+            question: question,
+            correctAnswer: this.currentCorrectAnswer,
+            userAnswer: userAnswer,
+            isCorrect: isCorrect
+        });
+        
+        // Update statistics
+        this.statsManager.recordAnswer(question, isCorrect);
+        
+        // Update streak
+        this.updateStreak(isCorrect);
+        
+        // Play random animation
+        this.playRandomAnimation(isCorrect);
+        
+        // Disable number pad during animation
+        const buttons = this.numberPadContainer.querySelectorAll('.number-pad-btn');
+        buttons.forEach(btn => btn.disabled = true);
+        
+        if (isCorrect) {
+            // Correct answer! Double points in Super Score Mode
+            this.score += 2;
+            this.showFeedback('🎉', 'correct');
+            this.playCorrectSound();
+            this.updateScore();
+            this.createConfetti();
+            
+            // Award double streak-based coins
+            const coinsEarned = this.streak * 2;
+            this.walletManager.addCoins(coinsEarned);
+            this.coinsEarnedThisRound += coinsEarned;
+            this.updateWalletDisplay();
+            this.showCoinAnimation(coinsEarned);
+            this.playChaChingSound();
+            
+            // Flash display green
+            this.numberPadDisplay.style.background = '#34d399';
+            setTimeout(() => {
+                this.numberPadDisplay.style.background = 'white';
+            }, 500);
+        } else {
+            // Wrong answer
+            this.showFeedback('😕', 'wrong');
+            this.playWrongSound();
+            
+            // Flash display red and show correct answer
+            this.numberPadDisplay.style.background = '#ef4444';
+            this.numberPadDisplay.style.color = 'white';
+            setTimeout(() => {
+                this.numberPadDisplay.textContent = this.currentCorrectAnswer;
+            }, 300);
+            setTimeout(() => {
+                this.numberPadDisplay.style.background = 'white';
+                this.numberPadDisplay.style.color = '#333';
+            }, 1200);
+        }
+        
+        // Move to next question after delay
+        setTimeout(() => {
+            this.currentQuestion++;
+            
+            // Re-enable number pad
+            buttons.forEach(btn => btn.disabled = false);
+            
+            this.displayQuestion();
+        }, 1500);
     }
     
     getRandomAnimationTrigger() {
@@ -858,6 +1019,9 @@ class MathGame {
         if (this.whiteboardCtx) {
             this.whiteboardCtx.clearRect(0, 0, this.whiteboardCanvas.width, this.whiteboardCanvas.height);
         }
+        
+        // Update answer interface based on current mode
+        this.updateAnswerInterface();
         
         // Generate new questions
         this.generateQuestions();
