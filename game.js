@@ -333,12 +333,14 @@ class MathGame {
     toggleMode() {
         this.isSuperScoreMode = !this.isSuperScoreMode;
         
-        // Update button text
+        // Update button text and aria-label for accessibility
         if (this.isSuperScoreMode) {
             this.modeToggleBtn.textContent = '⚡ Super Score Mode (2x)';
+            this.modeToggleBtn.setAttribute('aria-label', 'Super Score Mode - Double Points Active');
             this.modeToggleBtn.style.background = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
         } else {
             this.modeToggleBtn.textContent = '⚡ Normal Mode';
+            this.modeToggleBtn.setAttribute('aria-label', 'Normal Mode');
             this.modeToggleBtn.style.background = '';
         }
         
@@ -347,9 +349,6 @@ class MathGame {
         
         // Redisplay current question to update answer options if not at end
         if (this.currentQuestion < this.totalQuestions) {
-            // Don't increment currentQuestion, just refresh the display
-            const currentQ = this.currentQuestion;
-            this.currentQuestion = currentQ;
             this.displayQuestion();
         }
     }
@@ -384,12 +383,16 @@ class MathGame {
             this.updateNumberPadDisplay();
         } else if (value === 'submit') {
             if (this.numberPadInput !== '') {
-                this.checkNumberPadAnswer(parseInt(this.numberPadInput));
+                const parsedAnswer = parseInt(this.numberPadInput);
+                // Validate that the answer is a positive integer
+                if (!isNaN(parsedAnswer) && parsedAnswer > 0) {
+                    this.checkNumberPadAnswer(parsedAnswer);
+                }
                 this.numberPadInput = '';
                 this.updateNumberPadDisplay();
             }
         } else {
-            // Limit input to 3 digits (max answer is 144)
+            // Limit input to 3 digits (supports answers up to 999 for future expansion)
             if (this.numberPadInput.length < 3) {
                 this.numberPadInput += value;
                 this.updateNumberPadDisplay();
@@ -432,15 +435,16 @@ class MathGame {
         buttons.forEach(btn => btn.disabled = true);
         
         if (isCorrect) {
-            // Correct answer! Double points in Super Score Mode
-            this.score += 2;
+            // Correct answer! Points and coins are doubled in Super Score Mode
+            const scoreMultiplier = this.isSuperScoreMode ? 2 : 1;
+            this.score += 1 * scoreMultiplier;
             this.showFeedback('🎉', 'correct');
             this.playCorrectSound();
             this.updateScore();
             this.createConfetti();
             
-            // Award double streak-based coins
-            const coinsEarned = this.streak * 2;
+            // Award streak-based coins with mode multiplier
+            const coinsEarned = this.streak * scoreMultiplier;
             this.walletManager.addCoins(coinsEarned);
             this.coinsEarnedThisRound += coinsEarned;
             this.updateWalletDisplay();
@@ -466,6 +470,7 @@ class MathGame {
             setTimeout(() => {
                 this.numberPadDisplay.style.background = 'white';
                 this.numberPadDisplay.style.color = '#333';
+                this.numberPadDisplay.textContent = '_';
             }, 1200);
         }
         
