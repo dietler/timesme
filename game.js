@@ -69,6 +69,7 @@ class MathGame {
         // Initialize wallet and store managers
         this.walletManager = new WalletManager();
         this.storeManager = new StoreManager();
+        this.featureToggles = new FeatureTogglesManager();
         
         // Initialize audio context for sound effects
         this.audioContext = null;
@@ -130,6 +131,9 @@ class MathGame {
         // Update wallet display
         this.updateWalletDisplay();
         this.updateCollectionCount();
+        
+        // Apply any active feature toggles
+        this.applyFeatureToggles();
         
         // Display first question
         this.displayQuestion();
@@ -941,10 +945,17 @@ class MathGame {
         tiers.forEach(tier => {
             const tierHeader = document.createElement('div');
             tierHeader.className = 'store-tier-header tier-' + tier;
-            tierHeader.textContent = tierLabels[tier];
+            const reward = FeatureTogglesManager.REWARDS[tier];
+            const tierComplete = this.storeManager.isTierComplete(tier);
+            const tierItems = this.storeManager.items.filter(item => item.tier === tier);
+            const ownedInTier = tierItems.filter(item => this.storeManager.isOwned(item.id)).length;
+            let headerText = tierLabels[tier];
+            if (reward) {
+                headerText += tierComplete ? ` ✅ ${reward.emoji} ${reward.name}` : ` (${ownedInTier}/${tierItems.length}) → ${reward.emoji} ${reward.name}`;
+            }
+            tierHeader.textContent = headerText;
             this.storeGrid.appendChild(tierHeader);
             
-            const tierItems = this.storeManager.items.filter(item => item.tier === tier);
             tierItems.forEach(item => {
                 const card = document.createElement('div');
                 const owned = this.storeManager.isOwned(item.id);
@@ -983,7 +994,33 @@ class MathGame {
             this.updateCollectionCount();
             this.renderStoreItems();
             this.showPurchaseCelebration(item.emoji);
+            
+            // Check if this purchase completed a tier with a reward
+            const reward = FeatureTogglesManager.REWARDS[item.tier];
+            if (reward && this.storeManager.isTierComplete(item.tier)) {
+                this.featureToggles.setToggle(reward.id, true);
+                this.applyFeatureToggles();
+                this.showTierCompleteCelebration(item.tier, reward);
+            }
         }
+    }
+    
+    showTierCompleteCelebration(tier, reward) {
+        const tierLabels = { cheap: 'Common', medium: 'Cool', expensive: 'Premium' };
+        const overlay = document.createElement('div');
+        overlay.className = 'tier-complete-popup';
+        overlay.innerHTML = `
+            <div class="tier-complete-content">
+                <div class="tier-complete-emoji">🏆</div>
+                <div class="tier-complete-title">Set Complete!</div>
+                <div class="tier-complete-desc">You completed all ${tierLabels[tier]} items!</div>
+                <div class="tier-complete-reward">${reward.emoji} ${reward.name} Unlocked!</div>
+                <button class="tier-complete-close">Awesome! 🎉</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.tier-complete-close').addEventListener('click', () => overlay.remove());
+        setTimeout(() => { if (overlay.parentElement) overlay.remove(); }, 5000);
     }
     
     showPurchaseCelebration(emoji) {
@@ -1005,25 +1042,151 @@ class MathGame {
         const owned = this.storeManager.getOwnedItems();
         this.collectionProgress.textContent = `${this.storeManager.getOwnedCount()}/${this.storeManager.getTotalCount()} collected`;
         
+        // Render tier completion trophies at the top
+        const rewardTiers = Object.entries(FeatureTogglesManager.REWARDS);
+        const hasAnyReward = rewardTiers.some(([tier]) => this.storeManager.isTierComplete(tier));
+        
+        if (hasAnyReward || rewardTiers.length > 0) {
+            const trophySection = document.createElement('div');
+            trophySection.className = 'collection-trophy-section';
+            trophySection.innerHTML = '<div class="collection-trophy-header">🏆 Set Completion Rewards</div>';
+            
+            const tierLabels = { cheap: 'Common', medium: 'Cool', expensive: 'Premium' };
+            
+            rewardTiers.forEach(([tier, reward]) => {
+                const unlocked = this.storeManager.isTierComplete(tier);
+                const enabled = this.featureToggles.isEnabled(reward.id);
+                const tierItems = this.storeManager.items.filter(i => i.tier === tier);
+                const ownedInTier = tierItems.filter(i => this.storeManager.isOwned(i.id)).length;
+                
+                const card = document.createElement('div');
+                card.className = 'collection-trophy-card' + (unlocked ? ' unlocked' : ' locked');
+                card.innerHTML = `
+                    <div class="trophy-card-emoji">${unlocked ? reward.emoji : '🔒'}</div>
+                    <div class="trophy-card-name">${reward.name}</div>
+                    <div class="trophy-card-desc">${reward.description}</div>
+                    <div class="trophy-card-progress">${ownedInTier}/${tierItems.length} ${tierLabels[tier]}</div>
+                    ${unlocked ? `
+                        <label class="trophy-toggle-label">
+                            <input type="checkbox" class="trophy-toggle" data-feature="${reward.id}" ${enabled ? 'checked' : ''}>
+                            <span class="trophy-toggle-slider"></span>
+                            <span class="trophy-toggle-text">${enabled ? 'ON' : 'OFF'}</span>
+                        </label>
+                    ` : ''}
+                `;
+                trophySection.appendChild(card);
+            });
+            
+            this.collectionGrid.appendChild(trophySection);
+            
+            // Attach toggle event listeners
+            trophySection.querySelectorAll('.trophy-toggle').forEach(toggle => {
+                toggle.addEventListener('change', (e) => {
+                    const featureId = e.target.dataset.feature;
+                    const enabled = e.target.checked;
+                    this.featureToggles.setToggle(featureId, enabled);
+                    e.target.parentElement.querySelector('.trophy-toggle-text').textContent = enabled ? 'ON' : 'OFF';
+                    this.applyFeatureToggles();
+                });
+            });
+        }
+        
         if (owned.length === 0) {
-            this.collectionGrid.innerHTML = '<div class="no-stats">No items yet! Visit the store to buy some. 🏪</div>';
+            const noItems = document.createElement('div');
+            noItems.className = 'no-stats';
+            noItems.textContent = 'No items yet! Visit the store to buy some. 🏪';
+            this.collectionGrid.appendChild(noItems);
             return;
         }
         
+        // Section header for collected items
+        const itemsHeader = document.createElement('div');
+        itemsHeader.className = 'collection-items-header';
+        itemsHeader.textContent = '🎪 Your Collection';
+        this.collectionGrid.appendChild(itemsHeader);
+        
+        const itemsGrid = document.createElement('div');
+        itemsGrid.className = 'collection-items-grid';
         owned.forEach(item => {
             const el = document.createElement('div');
             el.className = 'collection-item';
             el.innerHTML = `<span class="collection-emoji">${item.emoji}</span><span class="collection-name">${item.name}</span>`;
-            this.collectionGrid.appendChild(el);
+            itemsGrid.appendChild(el);
         });
+        this.collectionGrid.appendChild(itemsGrid);
+    }
+    
+    applyFeatureToggles() {
+        // Fun Background
+        if (this.featureToggles.isEnabled('funBackground') && this.featureToggles.isUnlocked('funBackground', this.storeManager)) {
+            document.body.classList.add('fun-background');
+        } else {
+            document.body.classList.remove('fun-background');
+        }
+        
+        // Extra Pen Colors
+        this.updateWhiteboardColorPicker();
+        
+        // Funny Hats
+        if (this.featureToggles.isEnabled('funnyHats') && this.featureToggles.isUnlocked('funnyHats', this.storeManager)) {
+            document.querySelectorAll('.character-face').forEach(face => face.classList.add('has-hat'));
+        } else {
+            document.querySelectorAll('.character-face').forEach(face => face.classList.remove('has-hat'));
+        }
+    }
+    
+    updateWhiteboardColorPicker() {
+        let picker = document.getElementById('whiteboard-color-picker');
+        const unlocked = this.featureToggles.isEnabled('extraPenColors') && this.featureToggles.isUnlocked('extraPenColors', this.storeManager);
+        
+        if (!unlocked) {
+            if (picker) picker.style.display = 'none';
+            this.currentPenColor = '#333';
+            if (this.whiteboardCtx) this.whiteboardCtx.strokeStyle = '#333';
+            return;
+        }
+        
+        if (!picker) {
+            picker = document.createElement('div');
+            picker.id = 'whiteboard-color-picker';
+            picker.className = 'whiteboard-color-picker';
+            const colors = [
+                { color: '#333', label: 'Black' },
+                { color: '#e74c3c', label: 'Red' },
+                { color: '#3498db', label: 'Blue' },
+                { color: '#2ecc71', label: 'Green' },
+                { color: '#f39c12', label: 'Orange' },
+                { color: '#9b59b6', label: 'Purple' }
+            ];
+            colors.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'color-picker-btn' + (c.color === '#333' ? ' active' : '');
+                btn.style.backgroundColor = c.color;
+                btn.title = c.label;
+                btn.setAttribute('aria-label', c.label + ' pen');
+                btn.dataset.color = c.color;
+                btn.addEventListener('click', () => {
+                    picker.querySelectorAll('.color-picker-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    this.currentPenColor = c.color;
+                    this.whiteboardCtx.strokeStyle = c.color;
+                });
+                picker.appendChild(btn);
+            });
+            const container = document.querySelector('.whiteboard-container');
+            container.insertBefore(picker, container.querySelector('.whiteboard-canvas'));
+        }
+        
+        picker.style.display = 'flex';
     }
     
     // Whiteboard methods
     initWhiteboard() {
         this.whiteboardCtx = this.whiteboardCanvas.getContext('2d');
-        this.whiteboardCtx.lineWidth = 3;
+        this.whiteboardCtx.lineWidth = 12;
         this.whiteboardCtx.lineCap = 'round';
         this.whiteboardCtx.strokeStyle = '#333';
+        this.currentPenColor = '#333';
         
         // Mouse events
         this.whiteboardCanvas.addEventListener('mousedown', (e) => this.startDrawing(e));
@@ -1067,9 +1230,9 @@ class MathGame {
         this.whiteboardCanvas.height = rect.height;
         
         // Restore context settings
-        this.whiteboardCtx.lineWidth = 3;
+        this.whiteboardCtx.lineWidth = 12;
         this.whiteboardCtx.lineCap = 'round';
-        this.whiteboardCtx.strokeStyle = '#333';
+        this.whiteboardCtx.strokeStyle = this.currentPenColor || '#333';
         
         // Restore drawing if exists and dimensions match
         if (imageData && oldWidth === rect.width && oldHeight === rect.height) {
@@ -1151,6 +1314,7 @@ class MathGame {
         
         // Show overlay
         this.whiteboardOverlay.classList.add('active');
+        this.updateWhiteboardColorPicker();
         
         // Wait for overlay animation to complete before resizing canvas
         const CANVAS_RENDER_DELAY = 50; // Allow time for CSS animation and DOM rendering
@@ -1294,6 +1458,49 @@ class StoreManager {
 
     getOwnedItems() {
         return this.items.filter(item => this.isOwned(item.id));
+    }
+
+    isTierComplete(tier) {
+        const tierItems = this.items.filter(item => item.tier === tier);
+        return tierItems.length > 0 && tierItems.every(item => this.isOwned(item.id));
+    }
+
+    getCompletedTiers() {
+        const tiers = ['cheap', 'medium', 'expensive', 'legendary', 'epic', 'unreal', 'secret'];
+        return tiers.filter(tier => this.isTierComplete(tier));
+    }
+}
+
+// Feature Toggles Manager Class
+class FeatureTogglesManager {
+    constructor() {
+        this.storageKey = 'mathGameFeatureToggles';
+        this.toggles = JSON.parse(localStorage.getItem(this.storageKey)) || {};
+    }
+
+    // Rewards: cheap=funBackground, medium=extraPenColors, expensive=funnyHats
+    static REWARDS = {
+        cheap: { id: 'funBackground', name: 'Fun Background', emoji: '🌈', trophy: '🏆', description: 'Complete all Common items' },
+        medium: { id: 'extraPenColors', name: 'Extra Pen Colors', emoji: '🖊️', trophy: '🏆', description: 'Complete all Cool items' },
+        expensive: { id: 'funnyHats', name: 'Funny Hats', emoji: '🎩', trophy: '🏆', description: 'Complete all Premium items' }
+    };
+
+    isEnabled(featureId) {
+        return this.toggles[featureId] === true;
+    }
+
+    setToggle(featureId, enabled) {
+        this.toggles[featureId] = enabled;
+        localStorage.setItem(this.storageKey, JSON.stringify(this.toggles));
+    }
+
+    isUnlocked(featureId, storeManager) {
+        for (const [tier, reward] of Object.entries(FeatureTogglesManager.REWARDS)) {
+            if (reward.id === featureId) {
+                return storeManager.isTierComplete(tier);
+            }
+        }
+        return false;
     }
 }
 
