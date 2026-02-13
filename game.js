@@ -1186,7 +1186,7 @@ class MathGame {
     }
     
     showTierCompleteCelebration(tier, reward) {
-        const tierLabels = { cheap: 'Common', medium: 'Cool', expensive: 'Premium' };
+        const tierLabels = { cheap: 'Common', medium: 'Cool', expensive: 'Premium', legendary: 'Legendary' };
         const overlay = document.createElement('div');
         overlay.className = 'tier-complete-popup';
         overlay.innerHTML = `
@@ -1231,13 +1231,14 @@ class MathGame {
             trophySection.className = 'collection-trophy-section';
             trophySection.innerHTML = '<div class="collection-trophy-header">🏆 Set Completion Rewards</div>';
             
-            const tierLabels = { cheap: 'Common', medium: 'Cool', expensive: 'Premium' };
+            const tierLabels = { cheap: 'Common', medium: 'Cool', expensive: 'Premium', legendary: 'Legendary' };
             
             rewardTiers.forEach(([tier, reward]) => {
                 const unlocked = this.storeManager.isTierComplete(tier);
                 const enabled = this.featureToggles.isEnabled(reward.id);
                 const tierItems = this.storeManager.items.filter(i => i.tier === tier);
                 const ownedInTier = tierItems.filter(i => this.storeManager.isOwned(i.id)).length;
+                const hasPhoto = reward.id === 'photoBackground' && localStorage.getItem('mathGamePhotoBackground');
                 
                 const card = document.createElement('div');
                 card.className = 'collection-trophy-card' + (unlocked ? ' unlocked' : ' locked');
@@ -1252,6 +1253,7 @@ class MathGame {
                             <span class="trophy-toggle-slider"></span>
                             <span class="trophy-toggle-text">${enabled ? 'ON' : 'OFF'}</span>
                         </label>
+                        ${reward.id === 'photoBackground' ? `<button class="photo-bg-camera-btn">${hasPhoto ? '🔄 New Photo' : '📷 Take Photo'}</button>` : ''}
                     ` : ''}
                 `;
                 trophySection.appendChild(card);
@@ -1269,6 +1271,12 @@ class MathGame {
                     this.applyFeatureToggles();
                 });
             });
+            
+            // Attach photo background camera button listener
+            const cameraBtn = trophySection.querySelector('.photo-bg-camera-btn');
+            if (cameraBtn) {
+                cameraBtn.addEventListener('click', () => this.openPhotoCapture());
+            }
         }
         
         if (owned.length === 0) {
@@ -1313,6 +1321,125 @@ class MathGame {
         } else {
             document.querySelectorAll('.character-face').forEach(face => face.classList.remove('has-hat'));
         }
+        
+        // Photo Background
+        this.applyPhotoBackground();
+    }
+    
+    applyPhotoBackground() {
+        const enabled = this.featureToggles.isEnabled('photoBackground') && this.featureToggles.isUnlocked('photoBackground', this.storeManager);
+        let bgEl = document.getElementById('photo-background');
+        let shimmerEl = document.getElementById('photo-background-shimmer');
+        
+        if (enabled) {
+            const photoData = localStorage.getItem('mathGamePhotoBackground');
+            if (photoData) {
+                if (!bgEl) {
+                    bgEl = document.createElement('div');
+                    bgEl.id = 'photo-background';
+                    document.body.insertBefore(bgEl, document.body.firstChild);
+                }
+                if (!shimmerEl) {
+                    shimmerEl = document.createElement('div');
+                    shimmerEl.id = 'photo-background-shimmer';
+                    document.body.insertBefore(shimmerEl, bgEl.nextSibling);
+                }
+                bgEl.style.backgroundImage = `url(${photoData})`;
+                bgEl.style.display = 'block';
+                shimmerEl.style.display = 'block';
+                document.body.classList.add('has-photo-background');
+            }
+        } else {
+            if (bgEl) bgEl.style.display = 'none';
+            if (shimmerEl) shimmerEl.style.display = 'none';
+            document.body.classList.remove('has-photo-background');
+        }
+    }
+    
+    openPhotoCapture() {
+        // Create camera capture overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'photo-capture-overlay';
+        overlay.innerHTML = `
+            <div class="photo-capture-content">
+                <div class="photo-capture-title">📸 Take a Photo</div>
+                <div class="photo-capture-preview">
+                    <video class="photo-capture-video" autoplay playsinline></video>
+                    <canvas class="photo-capture-canvas"></canvas>
+                </div>
+                <div class="photo-capture-buttons">
+                    <button class="photo-capture-btn photo-capture-snap">📷 Snap!</button>
+                    <button class="photo-capture-btn photo-capture-retake" style="display:none;">🔄 Retake</button>
+                    <button class="photo-capture-btn photo-capture-use" style="display:none;">✅ Use This!</button>
+                    <button class="photo-capture-btn photo-capture-cancel">❌ Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        const video = overlay.querySelector('.photo-capture-video');
+        const canvas = overlay.querySelector('.photo-capture-canvas');
+        const snapBtn = overlay.querySelector('.photo-capture-snap');
+        const retakeBtn = overlay.querySelector('.photo-capture-retake');
+        const useBtn = overlay.querySelector('.photo-capture-use');
+        const cancelBtn = overlay.querySelector('.photo-capture-cancel');
+        let stream = null;
+        
+        const startCamera = () => {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(s => {
+                    stream = s;
+                    video.srcObject = stream;
+                })
+                .catch(() => {
+                    overlay.querySelector('.photo-capture-title').textContent = '⚠️ Camera not available';
+                    snapBtn.style.display = 'none';
+                });
+        };
+        
+        const stopCamera = () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        };
+        
+        const cleanup = () => {
+            stopCamera();
+            overlay.remove();
+        };
+        
+        snapBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            video.style.display = 'none';
+            canvas.style.display = 'block';
+            snapBtn.style.display = 'none';
+            retakeBtn.style.display = 'inline-block';
+            useBtn.style.display = 'inline-block';
+            stopCamera();
+        });
+        
+        retakeBtn.addEventListener('click', () => {
+            video.style.display = 'block';
+            canvas.style.display = 'none';
+            snapBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'none';
+            useBtn.style.display = 'none';
+            startCamera();
+        });
+        
+        useBtn.addEventListener('click', () => {
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+            localStorage.setItem('mathGamePhotoBackground', dataUrl);
+            cleanup();
+            this.applyPhotoBackground();
+        });
+        
+        cancelBtn.addEventListener('click', cleanup);
+        
+        startCamera();
     }
     
     updateWhiteboardColorPicker() {
@@ -1658,11 +1785,12 @@ class FeatureTogglesManager {
         this.toggles = JSON.parse(localStorage.getItem(this.storageKey)) || {};
     }
 
-    // Rewards: cheap=funBackground, medium=extraPenColors, expensive=funnyHats
+    // Rewards: cheap=funBackground, medium=extraPenColors, expensive=funnyHats, legendary=photoBackground
     static REWARDS = {
         cheap: { id: 'funBackground', name: 'Fun Background', emoji: '🌈', trophy: '🏆', description: 'Complete all Common items' },
         medium: { id: 'extraPenColors', name: 'Extra Pen Colors', emoji: '🖊️', trophy: '🏆', description: 'Complete all Cool items' },
-        expensive: { id: 'funnyHats', name: 'Funny Hats', emoji: '🎩', trophy: '🏆', description: 'Complete all Premium items' }
+        expensive: { id: 'funnyHats', name: 'Funny Hats', emoji: '🎩', trophy: '🏆', description: 'Complete all Premium items' },
+        legendary: { id: 'photoBackground', name: 'Photo Background', emoji: '📸', trophy: '🏆', description: 'Complete all Legendary items' }
     };
 
     isEnabled(featureId) {

@@ -2844,3 +2844,160 @@ body.fun-background {
     transform: scale(1.05);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
+
+/* ===== Photo Background (tier reward) ===== */
+#photo-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
+    display: none;
+}
+
+#photo-background-shimmer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    display: none;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.05) 20%,
+        rgba(255, 255, 255, 0.25) 40%,
+        rgba(255, 255, 255, 0.05) 60%,
+        rgba(255, 255, 255, 0.2) 80%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    background-size: 200% 200%;
+    animation: photoShimmer 4s ease-in-out infinite;
+    backdrop-filter: blur(1px);
+}
+
+@keyframes photoShimmer {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+body.has-photo-background {
+    background: transparent;
+}
+
+/* ===== Photo Capture UI ===== */
+.photo-capture-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-capture-content {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+}
+
+.photo-capture-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.photo-capture-preview {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.photo-capture-video,
+.photo-capture-canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-capture-canvas {
+    display: none;
+}
+
+.photo-capture-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.photo-capture-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.photo-capture-btn:active {
+    transform: scale(0.95);
+}
+
+.photo-capture-snap {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+}
+
+.photo-capture-retake {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.photo-capture-use {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: #fff;
+}
+
+.photo-capture-cancel {
+    background: #f0f0f0;
+    color: #666;
+}
+
+/* Camera button on trophy card */
+.photo-bg-camera-btn {
+    display: block;
+    margin: 8px auto 0;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.photo-bg-camera-btn:active {
+    transform: scale(0.95);
+}
