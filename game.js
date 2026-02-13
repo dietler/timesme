@@ -1386,7 +1386,7 @@ class MathGame {
         let stream = null;
         
         const startCamera = () => {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
                 .then(s => {
                     stream = s;
                     video.srcObject = stream;
