@@ -2559,10 +2559,6 @@ body.fun-background {
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
-.character-face {
-    position: relative;
-}
-
 .face-duck.has-hat::after { content: '🤠'; }
 .face-frog.has-hat::after { content: '👒'; }
 .face-bear.has-hat::after { content: '🎓'; }
