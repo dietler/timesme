@@ -147,6 +147,9 @@ class MathGame {
         // Apply any active feature toggles
         this.applyFeatureToggles();
         
+        // Initialize answer interface based on mode
+        this.updateAnswerInterface();
+        
         // Display first question
         this.displayQuestion();
     }
@@ -341,6 +344,14 @@ class MathGame {
         
         // Update UI to show/hide number pad or answer circles
         this.updateAnswerInterface();
+        
+        // Redisplay current question to update answer options if not at end
+        if (this.currentQuestion < this.totalQuestions) {
+            // Don't increment currentQuestion, just refresh the display
+            const currentQ = this.currentQuestion;
+            this.currentQuestion = currentQ;
+            this.displayQuestion();
+        }
     }
     
     updateAnswerInterface() {
