@@ -377,7 +377,7 @@ class MathGame {
         });
         
         // Add keyboard support for Super Score mode
-        document.addEventListener('keydown', (e) => {
+        this.handleKeyboardInput = (e) => {
             // Only handle keyboard input when in Super Score mode
             if (!this.isSuperScoreMode) return;
             
@@ -396,7 +396,9 @@ class MathGame {
                 e.preventDefault();
                 this.handleNumberPadInput('backspace');
             }
-        });
+        };
+        
+        document.addEventListener('keydown', this.handleKeyboardInput);
     }
     
     handleNumberPadInput(value) {
