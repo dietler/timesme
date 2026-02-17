@@ -375,11 +375,37 @@ class MathGame {
                 this.handleNumberPadInput(value);
             });
         });
+        
+        // Add keyboard support for Super Score mode
+        document.addEventListener('keydown', (e) => {
+            // Only handle keyboard input when in Super Score mode
+            if (!this.isSuperScoreMode) return;
+            
+            // Handle number keys (0-9)
+            if (e.key >= '0' && e.key <= '9') {
+                e.preventDefault();
+                this.handleNumberPadInput(e.key);
+            }
+            // Handle Enter key to submit
+            else if (e.key === 'Enter') {
+                e.preventDefault();
+                this.handleNumberPadInput('submit');
+            }
+            // Handle Backspace to erase last digit
+            else if (e.key === 'Backspace') {
+                e.preventDefault();
+                this.handleNumberPadInput('backspace');
+            }
+        });
     }
     
     handleNumberPadInput(value) {
         if (value === 'clear') {
             this.numberPadInput = '';
+            this.updateNumberPadDisplay();
+        } else if (value === 'backspace') {
+            // Remove last digit
+            this.numberPadInput = this.numberPadInput.slice(0, -1);
             this.updateNumberPadDisplay();
         } else if (value === 'submit') {
             if (this.numberPadInput !== '') {
