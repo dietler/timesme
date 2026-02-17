@@ -384,8 +384,8 @@ class MathGame {
         } else if (value === 'submit') {
             if (this.numberPadInput !== '') {
                 const parsedAnswer = parseInt(this.numberPadInput);
-                // Validate that the answer is a positive integer
-                if (!isNaN(parsedAnswer) && parsedAnswer > 0) {
+                // Validate that the answer is a non-negative integer
+                if (!isNaN(parsedAnswer) && parsedAnswer >= 0) {
                     this.checkNumberPadAnswer(parsedAnswer);
                 }
                 this.numberPadInput = '';
