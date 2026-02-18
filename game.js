@@ -435,9 +435,9 @@ class MathGame {
         buttons.forEach(btn => btn.disabled = true);
         
         if (isCorrect) {
-            // Correct answer! Points and coins are doubled in Super Score Mode
+            // Correct answer! Coins are doubled in Super Score Mode
             const scoreMultiplier = this.isSuperScoreMode ? 2 : 1;
-            this.score += 1 * scoreMultiplier;
+            this.score += 1;
             this.showFeedback('🎉', 'correct');
             this.playCorrectSound();
             this.updateScore();
